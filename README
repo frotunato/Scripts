@@ -4,9 +4,7 @@ Do not run any script as root (including sudo) user. It will cause problems with
 
 Megatools utility is required to run megaBackup.sh (all credits for http://megatools.megous.com).
 
-Also, in order to run fullBackupEnhanced.sh and restoreLastBackup.sh you need the LZ4 tool in your system. The point of 
-using this algorithm is to reduce as much as possible the CPU usage mantaining a great filesize (~65% compress ratio with
-default lz4 options) and an incredibly fast decompression speed. 
+Also, in order to run fullBackupEnhanced.sh and restoreLastBackup.sh you need the LZ4 tool installed in your system. The point of using this algorithm is to reduce as much as possible the CPU usage mantaining a great filesize (~65% compress ratio with lz4 default options) and an incredibly fast decompression speed. 
 
 This is the directory tree that you must have in your /home/user directory:
 |-home
