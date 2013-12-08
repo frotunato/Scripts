@@ -1,5 +1,6 @@
 Scripts
 =======
+Do not run the scripts as root (including sudo) user. It will cause problems with 'screen' sessions.
 This is the directory tree that you must have in your /home/user directory:
 |-home
  |-user
