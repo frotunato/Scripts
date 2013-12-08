@@ -8,7 +8,8 @@ SESSION="MINECRAFT_SERVER"
 if [ "$CHECK_PID" ]; then
 screen -S $SESSION -p 0 -X stuff 'say Comenzando copia de seguridad...'`echo -ne '\015'`
 START_TIME=`date +%s`
-tar cf "$BACKUP_DIR$DATE$TIME.tar.lz4" --use-compress-prog=lz4 "$CURRENT_BACKUP_DIR"
+cd /home/fortuna/storage
+tar cf "$BACKUP_DIR$DATE$TIME.tar.lz4" --use-compress-prog=lz4 "./current"
 find "$BACKUP_DIR" -mmin +240 -delete
 END_TIME=`date +%s`
 let FINAL_TIME=$END_TIME-$START_TIME
