@@ -1,5 +1,5 @@
 #!/bin/bash
-CURRENT_BACKUP_DIR="/home/fortuna/storage/ramdisk/*"
+CURRENT_BACKUP_DIR="/home/fortuna/storage/ramdisk"
 BACKUP_DIR="/home/fortuna/storage/backup"
 DATE=$(date +"%d-%m-%Y-[%T]")
 CHECK_PID="$(pidof java)"
