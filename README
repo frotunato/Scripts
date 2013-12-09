@@ -19,6 +19,7 @@ This is the directory tree that you should have in your /home/user directory:
   |-------world_nether
   |-------world_the_end
   |-----backup
+  |-------***.tar.lz4     #a bunch of backups
   |---minecraft
   |-------other stuff
   |-------world           #symbolic link to home/user/ramdisk/world
