@@ -1,0 +1,11 @@
+- Combine all the scripts
+- Delete all relative paths
+- Add a selective function to restore a specified backup
+- Do not delete the all the backups if you stopped the server for a long time (>x seconds)
+- Put a limit in the upload bandwith in order to preserve overall performance
+- Configure the map render plugin
+- Debloat webmin
+- Change the ramdisk directory name to make the code more readable
+- Configure a DNS
+- Add the capability to load different worlds.
+- Configure GIT
