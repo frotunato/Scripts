@@ -24,8 +24,8 @@ screen -S $SESSION -p 0 -X stuff "say $LOCAL_TIME_END Copia de seguridad complet
 fi
 
 if [ "$CHECK_PID" ] && [ $1 = "upload" ]; then
-USERNAME="f0rtunato@hotmail.com"
-PASSWORD="encore"
+USERNAME="************"
+PASSWORD="************"
 MEGA_DIR="/Root/backups"
 LOCAL_TIME_START="$(date +" [%H:%M:%S]")"
 screen -S "$SESSION" -p 0 -X stuff "say $LOCAL_TIME_START Subiendo última copia de seguridad..."`echo -ne '\015'`
