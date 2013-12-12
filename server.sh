@@ -58,7 +58,7 @@ case "$1" in
 	sleep 5
 	screen -S $SESSION -p 0 -X stuff "bash /home/fortuna/server sync"`echo -ne '\015'`
 	else
-	echo "El servidor no esta corriendo"
+	echo "El servidor no está corriendo"
 	fi
 	;;
 
