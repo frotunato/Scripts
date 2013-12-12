@@ -58,7 +58,7 @@ case "$1" in
 	sleep 5
 	bash $USER/server sync && crontab -r && screen -X -S $SESSION kill
 	else
-	echo "El servidor no esta corriendo"
+	echo "El servidor no está corriendo"
 	fi
 	;;
 
