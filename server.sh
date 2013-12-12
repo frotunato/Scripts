@@ -27,8 +27,8 @@ case "$1" in
 	;;
 
 	"upload")
-	USERNAME="f0rtunato@hotmail.com"
-	PASSWORD="encore"
+	USERNAME="****"
+	PASSWORD="****"
 	MEGA_DIR="/Root/backups"
 	LOCAL_TIME_START="$(date +" [%H:%M:%S]")"
 	screen -S "$SESSION" -p 0 -X stuff "say $LOCAL_TIME_START Subiendo última copia de seguridad..."`echo -ne '\015'`
@@ -78,9 +78,9 @@ case "$1" in
 
 	"start")
 	if [ ! "$CHECK_PID" ]; then
-	crontab -l > file; echo "*/1 * * * * bash $USER/server sync" >> file; crontab file > /dev/null
-	crontab -l > file; echo "*/20 * * * * sleep 5; bash $USER/server backup" >> file; crontab file > /dev/null
-	crontab -l > file; echo "*/101 * * * * bash $USER/server upload" >> file; crontab file > /dev/null
+	(crontab -l; echo "*/1 * * * * bash $USER/server sync" )2>/dev/null | crontab -
+	(crontab -l; echo "*/20 * * * * bash $USER/server backup" )2>/dev/null | crontab -
+	(crontab -l; echo "*/101 * * * * bash $USER/server upload" )2>/dev/null | crontab -
 	sudo rsync -r "$RAMDISK_MIRROR/" "$DIR"
 	screen -d -m -S $SESSION
 	sleep 1
