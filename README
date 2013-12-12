@@ -1,30 +1,28 @@
 Scripts
 =======
-Do not run any script as root (including sudo) user. It will cause problems with 'screen' sessions.
+Do not run the script as root (including sudo) user. It will cause problems with 'screen' sessions.
 
-Megatools utility is required to run megaBackup.sh (all credits for http://megatools.megous.com).
+Megatools utility (http://megatools.megous.com) and LZ4 tool are needed to run the script.
 
-Also, in order to run fullBackupEnhanced.sh and restoreLastBackup.sh you need the LZ4 tool installed in your system. 
-
-The point of using this algorithm is to reduce as much as possible the CPU usage mantaining a great filesize (~65% compress ratio with lz4 default options), and an incredibly fast decompression speed. 
+The point of using the LZ4 algorithm is to reduce as much as possible the CPU usage mantaining a great filesize (~65% compress ratio with lz4 default options), and an incredibly fast decompression speed. 
 
 This is the directory tree that you should have in your /home/user directory:
 
 |-home
  |-user
   |---storage
-  |-----ramdisk
+  |-----$RAMDISK_MIRROR
   |-------world
   |-------world_nether
   |-------world_the_end
-  |-----backup
+  |-----$BACKUP_PATH
   |-------***.tar.lz4     #a bunch of backups
-  |---minecraft
+  |---$SERVER_PATH
   |-------other stuff
-  |-------world           #symbolic link to home/user/ramdisk/world
-  |-------world_nether    #symbolic link to home/user/ramdisk/world_the_end
-  |-------world_the_end   #symbolic link to home/user/ramdisk/world_nether
-  |---ramdisk
+  |-------world           #symbolic link to $RAMDISK/world
+  |-------world_nether    #symbolic link to $RAMDISK/world_the_end
+  |-------world_the_end   #symbolic link to $RAMDISK/world_nether
+  |---$RAMDISK
   |-----world
   |-----world_nether
   |-----world_the_end
