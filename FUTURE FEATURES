@@ -1,7 +1,6 @@
-- Delete all relative paths
+- Rewrite the code in Perl
 - Add a selective function to restore a specified backup
 - Do not delete the all the backups if you stopped the server for a long time (>x seconds) (ull backup every 20)
-- Put a limit in the upload bandwith in order to preserve overall performance
 - Configure the map render plugin
 - Debloat webmin
 - Configure a DNS
