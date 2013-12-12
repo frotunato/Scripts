@@ -1,6 +1,6 @@
 - Rewrite the code in Perl
 - Add a selective function to restore a specified backup
-- Do not delete the all the backups if you stopped the server for a long time (>x seconds) (ull backup every 20)
+- Do not delete the all the backups if the server has been down for a long time
 - Configure the map render plugin
 - Debloat webmin
 - Configure a DNS
