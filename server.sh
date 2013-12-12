@@ -7,7 +7,7 @@ BACKUP_PATH="/home/fortuna/storage/backup"
 SERVER_PATH="/home/fortuna/minecraft"
 MINECRAFT_PATH="/home/fortuna/minecraft"
 CHECK_PID="$(pidof java)"
-DATE="$(date +"%d-%m-%Y[%T]")"
+DATE="$(date +"%d-%m-%Y [%T]")"
 NEWEST_BACKUP="$(ls "$BACKUP_PATH" -rt | tail -1)"
 SESSION="MINECRAFT_SERVER"
 ######################################################
@@ -27,8 +27,8 @@ case "$1" in
 	;;
 
 	"upload")
-	USERNAME="*****"
-	PASSWORD="*****"
+	USERNAME="f0rtunato@hotmail.com"
+	PASSWORD="encore"
 	MEGA_DIR="/Root/backups"
 	LOCAL_TIME_START="$(date +" [%H:%M:%S]")"
 	screen -S "$SESSION" -p 0 -X stuff "say $LOCAL_TIME_START Subiendo última copia de seguridad..."`echo -ne '\015'`
@@ -56,9 +56,9 @@ case "$1" in
 	sleep 5
 	screen -S $SESSION -p 0 -X stuff "stop"`echo -ne '\015'`
 	sleep 5
-	screen -S $SESSION -p 0 -X stuff "bash /home/fortuna/server sync"`echo -ne '\015'`
+	bash $USER/server sync && crontab -r && screen -X -S $SESSION kill
 	else
-	echo "El servidor no está corriendo"
+	echo "El servidor no esta corriendo"
 	fi
 	;;
 
@@ -78,10 +78,13 @@ case "$1" in
 
 	"start")
 	if [ ! "$CHECK_PID" ]; then
+	crontab -l > file; echo "*/1 * * * * bash $USER/server sync" >> file; crontab file > /dev/null
+	crontab -l > file; echo "*/20 * * * * sleep 5; bash $USER/server backup" >> file; crontab file > /dev/null
+	crontab -l > file; echo "*/101 * * * * bash $USER/server upload" >> file; crontab file > /dev/null
 	sudo rsync -r "$RAMDISK_MIRROR/" "$DIR"
-	screen -d -m -S "$SESSION"
+	screen -d -m -S $SESSION
 	sleep 1
-	screen -S "$SESSION" -X stuff "cd $SERVER_PATH && sudo java -Xmx1700M -Xms1700M -jar minecraft_server.jar"`echo -ne '\015'`
+	screen -S $SESSION -X stuff "cd $SERVER_PATH && sudo java -Xmx1700M -Xms1700M -jar minecraft_server.jar && cd $USER"`echo -ne '\015'`
 	else
 	echo "Sólo puede haber una instancia del servidor"
 	fi
