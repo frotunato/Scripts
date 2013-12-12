@@ -27,8 +27,8 @@ case "$1" in
 	;;
 
 	"upload")
-	USERNAME="****"
-	PASSWORD="****"
+	USERNAME="*****"
+	PASSWORD="*****"
 	MEGA_DIR="/Root/backups"
 	LOCAL_TIME_START="$(date +" [%H:%M:%S]")"
 	screen -S "$SESSION" -p 0 -X stuff "say $LOCAL_TIME_START Subiendo última copia de seguridad..."`echo -ne '\015'`
@@ -69,8 +69,8 @@ case "$1" in
 	bash /home/fortuna/server stop
 	sleep 1
 	fi
-	cd "$RAMDISK" && sudo rm -r *;cd "$RAMDISK_MIRROR" && sudo rm -r *
-	cd "$USER"; sudo lz4 -d "$BACKUP_PATH/$NEWEST_BACKUP"
+	cd "$RAMDISK" && sudo rm -rf *
+	cd "$RAMDISK_MIRROR" && sudo rm -rf * && sudo lz4 -d "$BACKUP_PATH/$NEWEST_BACKUP"
 	TAR="$(find $BACKUP_PATH -type f -name '*.tar' -print)"
 	tar -xf "$TAR" -C "$RAMDISK_MIRROR/"
 	rm -f "$TAR"
@@ -81,7 +81,7 @@ case "$1" in
 	(crontab -l; echo "*/1 * * * * bash $USER/server sync" )2>/dev/null | crontab -
 	(crontab -l; echo "*/20 * * * * bash $USER/server backup" )2>/dev/null | crontab -
 	(crontab -l; echo "*/101 * * * * bash $USER/server upload" )2>/dev/null | crontab -
-	sudo rsync -r "$RAMDISK_MIRROR/" "$DIR"
+	sudo rsync -r "$RAMDISK_MIRROR/" "$RAMDISK"
 	screen -d -m -S $SESSION
 	sleep 1
 	screen -S $SESSION -X stuff "cd $SERVER_PATH && sudo java -Xmx1700M -Xms1700M -jar minecraft_server.jar && cd $USER"`echo -ne '\015'`
