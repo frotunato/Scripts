@@ -14,8 +14,6 @@ DATE="$(date +"%d-%m-%Y [%T]")"
 SESSION="MINECRAFT_SERVER"
 ######################################################
 
-#This performs a safe exit
-trap "bash /home/fortuna/server stop" SIGINT
 case "$1" in
 	#This perform a save-all comand and proceed to do the backup. When is done it automatically removes an old backup * (See purge option)
 	"backup")
@@ -89,9 +87,9 @@ case "$1" in
 	"start")
 	if [ ! "$CHECK_PID" ]; then
 	(crontab -r)2>/dev/null
-	(crontab -l; echo "*/1 * * * * bash $USER/server sync" )2>/dev/null | crontab -
-	(crontab -l; echo "*/20 * * * * bash $USER/server backup" )2>/dev/null | crontab -
-	(crontab -l; echo "*/101 * * * * bash $USER/server upload" )2>/dev/null | crontab -
+	(crontab -l; echo "*/1 * * * * bash $USER/server sync")2>/dev/null | crontab -
+	(crontab -l; echo "*/20 * * * * bash $USER/server backup")2>/dev/null | crontab -
+	(crontab -l; echo "*/101 * * * * bash $USER/server upload")2>/dev/null | crontab -
 	(mkdir "$RAMDISK_MIRROR/world" "$RAMDISK_MIRROR/world_the_end" "$RAMDISK_MIRROR/world_nether") 2>/dev/null
 	sudo rsync -r "$RAMDISK_MIRROR/" "$RAMDISK"
 	screen -d -m -S "$SESSION"
