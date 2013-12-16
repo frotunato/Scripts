@@ -10,27 +10,9 @@ BACKUP_PATH="/home/fortuna/storage/backup"
 SERVER_PATH="/home/fortuna/minecraft"
 MEGA_PATH="/Root/backups"
 CHECK_PID="$(pidof java)"
-DATE="$(date +"%d-%m-%Y [%T]")"
 SESSION="MINECRAFT_SERVER"
+DATE="$(date +"%d-%m-%Y [%T]")"
 ######################################################
-
-removeCron(){
-(crontab -r)2>/dev/null
-}
-
-setCron(){
-(crontab -l; echo "*/1 * * * * bash $USER/server sync" )2>/dev/null | crontab -
-(crontab -l; echo "*/20 * * * * bash $USER/server backup" )2>/dev/null | crontab -
-(crontab -l; echo "*/101 * * * * bash $USER/server upload" )2>/dev/null | crontab -
-}
-
-restoreBackup(){
-cd "$RAMDISK" && sudo rm -rf *
-cd "$RAMDISK_MIRROR" && sudo rm -rf * && sudo lz4 -d "$BACKUP_PATH/$NEWEST_BACKUP"
-TAR="$(find $BACKUP_PATH -type f -name '*.tar' -print)"
-tar -xf "$TAR" -C "$RAMDISK_MIRROR/"
-rm -f "$TAR"
-}
 
 case "$1" in
 	#This perform a save-all comand and proceed to do the backup. When is done it automatically removes an old backup * (See purge option)
@@ -94,14 +76,19 @@ case "$1" in
 	NEWEST_BACKUP="`grep .tar.lz4 $LOGFILE`"
 	megaget -u "$USERNAME" -p "$PASSWORD" --path "$BACKUP_PATH" "$MEGA_PATH/$NEWEST_BACKUP"
 	fi
-	restoreBackup
-	;;
+	cd "$RAMDISK" && sudo rm -rf *
+	cd "$RAMDISK_MIRROR" && sudo rm -rf * && sudo lz4 -d "$BACKUP_PATH/$NEWEST_BACKUP"
+	TAR="$(find $BACKUP_PATH -type f -name '*.tar' -print)"
+	tar -xf "$TAR" -C "$RAMDISK_MIRROR/"
+	rm -f "$TAR"	;;
 
 	#It adds to the user crontab a bunch of scheduled backups and runs the server.
 	"start")
 	if [ ! "$CHECK_PID" ]; then
-	removeCron
-	setCron
+	(crontab -r)2>/dev/null
+	(crontab -l; echo "*/1 * * * * bash $USER/server sync" )2>/dev/null | crontab -
+	(crontab -l; echo "*/20 * * * * bash $USER/server backup" )2>/dev/null | crontab -
+	(crontab -l; echo "*/101 * * * * bash $USER/server upload" )2>/dev/null | crontab -
 	(mkdir "$RAMDISK_MIRROR/world" "$RAMDISK_MIRROR/world_the_end" "$RAMDISK_MIRROR/world_nether") 2>/dev/null
 	sudo rsync -r "$RAMDISK_MIRROR/" "$RAMDISK"
 	screen -d -m -S "$SESSION"
