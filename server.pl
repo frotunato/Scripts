@@ -1,18 +1,15 @@
 #!/usr/bin/perl
-##IMPORTS##
 use 5.018;
 use File::Path qw(make_path remove_tree);
 use strict;
 use warnings;
 use Time::Piece;
-##VARIABLES##
 my $RAMDISK_MIRROR_PATH="/home/fortuna/storage/ramdisk";
 my $RAMDISK="/home/fortuna/ramdisk";
 my $BACKUP_PATH="/home/fortuna/storage/backup";
 my $CHECK_PID = qx(pidof java);
 my $DATE = Time::Piece->new->strftime('%d-%m-%Y[%H:%M]');
 
-##FUNCTIONS##
 sub selectBackup{
 my @args = @_;
 opendir(my $DH, $BACKUP_PATH) or die "Error opening $BACKUP_PATH: $!";
@@ -33,15 +30,15 @@ unlink("$BACKUP_PATH/$string");
 }
 
 sub compress{
-#my $TIME_A = time;
 qx(tar cf "$BACKUP_PATH/$DATE.tar.lz4" --use-compress-prog=lz4c "$RAMDISK_MIRROR_PATH");
-#my $RUN_TIME = time - $TIME_A;
 }
 
-sub sync{ &generateStructure; qx (rsync -r $RAMDISK_MIRROR_PATH/ $RAMDISK);
+sub sync{ 
+&generateStructure; 
+qx (rsync -r $RAMDISK_MIRROR_PATH/ $RAMDISK);
 }
 
-sub purge{
+sub clear{
 remove_tree( "$RAMDISK",{keep_root=>1} );
 remove_tree( "$RAMDISK_MIRROR_PATH",{keep_root=>1} );
 }
@@ -53,24 +50,20 @@ my @structure = ("world","world_nether","world_the_end");
  }
 }
 
-###############################
+sub purge{
+
+}
 given ($ARGV[0]) { 
     when ("backup") {
-	print "Comenzando compresión\n";
-	my $TIME_A = time;
 	&compress;
-	my $RUN_TIME = time - $TIME_A;
-	print "Compresión terminada en $RUN_TIME segundo(s)\n";
 	}
     
     when ("restore") {
-	print "Comenzando restauración\n";
-	&purge;
+	&clear;
 	&decompress;
 	&sync;
-	print "Restauración terminada\n";
 	}
-    when ("purge") {
+    when ("clear") {
 	}
 }
 
