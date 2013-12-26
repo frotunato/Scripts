@@ -35,12 +35,12 @@ sub buildCron{
 	close $fh;
 }
 
-#Delete the cron file
+#Delete the cron user file
 sub eraseCron{
 	qx(crontab -r);
 }
 
-#Returns a specific backup file (defined in the input) from $BACKUP_PATH
+#Returns a specific backup (defined in the input) of $BACKUP_PATH
 sub selectBackup{
 	my @args = @_;
 	opendir(my $DH, $BACKUP_PATH) or die "Error opening $BACKUP_PATH: $!";
@@ -50,7 +50,7 @@ sub selectBackup{
 	return $sorted_files[$_[0]];
 }
 
-#Decompress (by default) the newest backup
+#Decompress (by default) the newest backup in $BACKUP_PATH
 sub decompress{
 	my $NEWEST_BACKUP = &selectBackup(0);
 	my $FILENAME = "$NEWEST_BACKUP";
@@ -60,7 +60,7 @@ sub decompress{
 	unlink("$BACKUP_PATH/$FILENAME");
 }
 
-#Launch the server using screen. The screen's  name is defined in $SESSION variable
+#Launchs the server using 'screen'. The screen's name is defined in $SESSION variable
 sub start{
 	if($CHECK_PID){
 		print "Only one instance of the server is allowed\n";
@@ -68,7 +68,7 @@ sub start{
 			system("cd $SERVER_PATH; screen -d -m java -Xmx1024M -Xms1024M -jar spigot.jar > /dev/null 2>&1 &");
 		}
 	}
-#Makes a tarball of $RAMDISK_MIRROR_PATH and compress it using a LZ4 tool.
+#Makes a tarball of $RAMDISK_MIRROR_PATH and compress it.
 sub compress{
 	if ($CHECK_PID){
 		my $rcon= Minecraft::RCON->new( { password => "$PASSWORD" } );
@@ -88,12 +88,12 @@ sub syncMirrorToRamdisk{
 	system ("rsync -r $RAMDISK_MIRROR_PATH/ $RAMDISK");
 }
 
-#Makes a sync between $RAMDISK and $RAMDISK_MIRROR_PATH, deleting all the files that no longer exist 
+#Makes a sync between $RAMDISK and $RAMDISK_MIRROR_PATH deleting all the files that no longer exist. 
 sub syncRamdiskToMirror{
 	system ("rsync -ru --delete-delay  $RAMDISK/ $RAMDISK_MIRROR_PATH");
 }
 
-#CAUTION! This subroutine WILL DESTROY ALL THE DATA in $RAMDISK and RAMDISK_MIRROR_PATH 
+#CAUTION! This WILL DESTROY ALL THE DATA in $RAMDISK and RAMDISK_MIRROR_PATH 
 sub clear{
 	if(!$CHECK_PID){
 		remove_tree( "$RAMDISK",{keep_root=>1} );
@@ -101,7 +101,7 @@ sub clear{
 		} else { print "The server must be off to use this option"; }
 	}
 
-#Generates in $RAMDISK_MIRROR_PATH the basic tree for a minecraft world
+#Generates in $RAMDISK_MIRROR_PATH the necessary directories of a standard minecraft server
 sub generateStructure{
 	my @structure = ("world","world_nether","world_the_end");
 	foreach my $TEMP (@structure){
@@ -109,7 +109,7 @@ sub generateStructure{
 	}
 }
 
-#Stops the server sending multiple countdown messages to the game.
+##Stops the server and notify the players.
 sub stop{
 	if ($CHECK_PID) {
 		my $rcon= Minecraft::RCON->new( { password => "$PASSWORD" } );
@@ -124,11 +124,10 @@ sub stop{
 		sleep 5;
 		$rcon->command("stop");
 		$rcon->disconnect;
-		&eraseCron;
 		} else { print "The server is not running\n"; }
 	}
 
-#Removes the last element of the backup folder if there are more elements than $MAX_NUMBER_OF_BACKUPS variable
+#Removes the oldest element of the backup folder if there are more elements than $MAX_NUMBER_OF_BACKUPS variable
 sub purge{
 	my $MAX_NUMBER_OF_BACKUPS=6;
 	opendir my($dh), $BACKUP_PATH or die "Couldn't open dir '$BACKUP_PATH': $!";
@@ -153,6 +152,7 @@ given ($ARGV[0]) {
 
 	when ("restore") {
 		&stop;
+		&eraseCron;
 		&clear;
 		&decompress;
 	}
@@ -168,7 +168,9 @@ given ($ARGV[0]) {
 	when ("stop") {
 		&stop;	
 		&syncRamdiskToMirror;
+		&eraseCron;
 	}
+	
 	when ("start") {
 		&generateStructure;
 		&syncMirrorToRamdisk;
