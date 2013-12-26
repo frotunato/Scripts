@@ -18,7 +18,7 @@ my $USER_PATH="/home/fortuna";
 my $RAMDISK="/home/fortuna/ramdisk";
 my $CHECK_PID = qx(pidof java);
 my $DATE = Time::Piece->new->strftime("%d-%m-%Y'\040'[%H:%M]");
-my $PASSWORD="encore";
+my $PASSWORD="***************";
 
 ####################################################################################
 ###################################### FUNCTIONS ###################################
