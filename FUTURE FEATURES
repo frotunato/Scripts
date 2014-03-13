@@ -1,8 +1,0 @@
-- Rewrite the code in Perl
-- Add a selective function to restore a specified backup
-- Do not delete the all the backups if the server has been down for a long time
-- Configure the map render plugin
-- Debloat webmin
-- Configure a DNS
-- Add the capability to load different worlds.
-- Configure GIT
