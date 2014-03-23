@@ -1,7 +1,7 @@
 #!bin/bash
 BACKUP_DIR="/home/fortuna/storage/backup"
-USERNAME="f0rtunato@hotmail.com"
-PASSWORD="encore"
+USERNAME="******"
+PASSWORD="******"
 MEGA_DIR="/Root/backups"
 CHECK_PID="$(pidof java)"
 SESSION="MINECRAFT_SERVER"
