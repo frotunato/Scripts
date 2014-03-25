@@ -1,10 +1,11 @@
-import uuid
-import timeit
 import lz4
 import os
 import tarfile
+import datetime
+import time
 
 path = "/home/fortuna/test"
+path2 = "/home/fortuna/directorio"
 
 
 def compress(file):
@@ -32,11 +33,17 @@ def restore():
         decompress(path + "/" + selectedFile)
 
 def make_tar():
-        tar = tarfile.open("TAR.tar", "w")
-        path2 = "/home/fortuna/directorio"
-        dirs = os.listdir ( path2 )
-        for file in dirs:
-                tar.add ( file )
+        dateAndTime = time.strftime("%d-%m-%Y") + " [" + time.strftime("%X")+ "].tar"
+        tar = tarfile.open(str(dateAndTime), "w")
+        tar.add ( path2 )
         tar.close()
+        return tar.name
 
-make_tar()
+def backup():
+        tarFile = make_tar()
+        compress(tarFile)
+        os.remove(tarFile)
+
+
+backup()
+#make_tar()
