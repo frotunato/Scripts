@@ -2,23 +2,62 @@
 <html>
 <head>
   <title>World creation</title>
-  <style type="text/css">
-    #limit {
-     max-width: 500px;
-    }
-    #maxBuildHeight{
-      max-width: 150px;
-    }
-    #maxViewDistance{
-      max-width: 150px;
-    }
-    #opPermissionLevel{
-      max-width: 150px;
-    }
-    #maxPlayers{
-      max-width: 150px;
-    }
  
+  <style type="text/css">
+  
+  
+  body {
+font-family: 'Segoe UI';
+  
+  }
+
+  fieldset{
+    border-radius: 5px;
+    border:2px solid #CCC;
+    width:500px;
+
+  }
+
+  fieldset legend {
+    font-family: 'Segoe UI';
+    background: #fff;
+    color: #464646;
+    font-weight:700;
+    padding: 4px 10px ;
+    font-size: 15px;
+    border-radius: 3px;
+    box-shadow: 0 0 0 2px #ddd;
+    margin-left: 10px;
+}
+    .input {
+    width:300px;
+    margin-bottom:5px;
+    line-height:18px;
+    padding:2px 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    border:1px solid #CCC;
+}
+    input[type=text], input[type=password] {
+  margin: 2px;
+  padding: 0 10px;
+  width: 100px;
+  height: 24px;
+  color: #404040;
+  border: 1px solid;
+  border-color: #c4c4c4 #d1d1d1 #d4d4d4;
+  border-radius: 5px;
+  outline: 5px ;
+  -moz-outline-radius: 3px;
+  -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.12);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+
+    .slider{
+      max-width: 150px;
+    }   
      .buttonSet{
     -khtml-user-select: none;
      -moz-user-select: -moz-none;
@@ -43,12 +82,31 @@
   <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
 
   <script type="text/javascript">
+
+$(function(){
+  $('#playerIdleTimeout').slider({ 
+    max: 600,
+    min: 0,
+    value: 300,
+    animate:"fast",
+    step:20,
+    slide: function(e,ui) {
+      $('#playerIdleTimeoutSliderValue').html(ui.value);
+    }
+    ,change: function(e,ui) {
+      $('#playerIdleTimeoutInputValue').attr('value', ui.value);
+    }
+  });
+});
+    
+
+
 $(function(){
   $('#maxBuildHeight').slider({ 
     max: 256,
     min: 64,
     value: 256,
-    animate:true,
+    animate:"fast",
     step:16,
     slide: function(e,ui) {
       $('#maxBuildHeightSliderValue').html(ui.value);
@@ -66,7 +124,7 @@ $(function(){
     min: 3,
     value: 10,
     step:1,
-    animate:true,
+    animate:"fast",
     slide: function(e,ui) {
       $('#maxViewDistanceSliderValue').html(ui.value);
     }
@@ -74,17 +132,21 @@ $(function(){
       $('#maxViewDistanceInputValue').attr('value',ui.value);
     }
   });
-});
+}); 
+ 
 
 $(function(){
   $('#opPermissionLevel').slider({ 
     max: 4,
     min: 1,
-    value: 4,
+    value: 3,
     step:1,
-    animate:true,
+    animate:"fast",
     slide: function(e,ui) {
-      $('#currentPermissionLevel').html(ui.value);
+      $('#opPermissionLevelSliderValue').html(ui.value);
+    }
+    ,change: function(e,ui){
+      $('#opPermissionLevelInputValue').attr('value',ui.value);
     }
   });
 });
@@ -95,19 +157,89 @@ $(function(){
     min: 2,
     value: 25,
     step:1,
-    animate:true, 
+    animate:"fast",
     slide: function(e,ui) {
-      $( "#maxPlayersSliderValue" ).html(ui.value);
+      $("#maxPlayersSliderValue").html(ui.value);
     }
     ,change: function(e,ui){
-      $( "#maxPlayersInputValue").attr('value',ui.value);
+      $("#maxPlayersInputValue").attr('value',ui.value);
+    
     }
   });
 });
+
+
+
+
+
+$(document).ready(function () { 
+    $('#queryPort').hide();
+    $('#rconConfig').hide();
+    $('#advancedSettings').hide();
+    $("#enableQuery input[type=radio]").change(function () {
+    var data = this.value;
+    var array = ["#queryPortValue"];
+    toggleFields("#queryPort",array,data);
+    });
+
+    $("#enableRcon input[type=radio]").change(function () {
+    var data = this.value;
+    var array = ["#queryPortValue"];
+    var array = ["#rconPortValue","#rconPasswordValue"];
+
+    toggleFields("#rconConfig",array,data);
+    });
+
+    $("#advancedLevelSettings input[type=radio]").change(function () {
+    var data = this.value;
+    var array = ["#generatorSettings","#levelSeed","#resourcePack"];
+    toggleFields("#advancedSettings",array,data);
+    });
+  
+    $("#playerTimeoutSettings input[type=radio]").change(function () {
+    var data = this.value;
+    var array = ["#valores"];
+    toggleSliders("#playerTimeoutSlider",array,data);
+    });
+/*
+function toggleSliders(section, sliders, value) {
+    if (value=="true"){
+        $(section).show(100);
+    }else if(value=="false"){
+        $(section).hide(100);
+        //for (var i = sliders.length - 1; i >= 0; i--) {
+       // $(sliders[i]).slider("option","value",0);
+        $("#playerIdleTimeout").slider("value" , 0);
+        $("#valores").val(0);
+
+     // };
+
+    }
+}
+*/
+function toggleFields(section, fields, value) {
+    if (value=="true"){
+        $(section).show(100);
+    }else if(value=="false"){
+        $(section).hide(100);
+      for (var i = fields.length - 1; i >= 0; i--) {
+        $(fields[i]).val("");
+      };
+    }
+}
+
+});
+
 $(function(){
   $( '#defaultGamemode' ).buttonset();
   $( "#defaultGamemode" ).find("label").unbind("mouseup");
 })
+
+$(function(){
+  $( '#advancedLevelSettings' ).buttonset();
+  $( "#advancedLevelSettings" ).find("label").unbind("mouseup");
+})
+
 $(function(){
   $( '#levelType').buttonset();
   $( "#levelType" ).find("label").unbind("mouseup");
@@ -194,8 +326,8 @@ $(function(){
   
 </head>
 <body>
-  <div id="limit">
-  <form action="/start" method="post">
+  
+  <form id="worldForm" action="/start" method="post">
     <fieldset>
      <legend>Gamemode settings</legend>
 
@@ -224,7 +356,8 @@ $(function(){
     <label for ="forceGamemodeYes">Yes</label>
 
     <input type = "radio" id="forceGamemodeNo" value = "false" name = "force-gamemode" checked="checked">
-    <label for ="forceGamemodeNo">No</no>
+    <label for ="forceGamemodeNo">No</label>
+
   
     </div>
   </p>
@@ -232,10 +365,21 @@ $(function(){
   </fieldset>     
  
   <!--external settings-->
- 
+ </p>
+ <p>
   <fieldset>
    <legend>External settings</legend>
+<!--snooper-enabled-->
+ <p>
+    <label class="elementLabel" for="buttonSet">Enable snooper</label>
+   <div class="buttonSet" id="enableSnooper">
+    <input type = "radio" id="enableSnooperYes" value = "true" name = "snooper-enabled">
+    <label for ="enableSnooperYes">Yes</label>
 
+    <input type = "radio" id="enableSnooperNo" value = "false" name = "snooper-enabled" checked="checked">
+    <label for ="enableSnooperNo">No</no></label>
+    </div>
+ </p>
    <!--enable-query-->
   <p>
     <label class="elementLabel" for="buttonSet">Enable query</label>
@@ -244,16 +388,16 @@ $(function(){
     <label for ="enableQueryYes">Yes</label>
 
     <input type = "radio" id="enableQueryNo" value = "false" name = "enable-query" checked="checked">
-    <label for ="enableQueryNo">No</no>
+    <label for ="enableQueryNo">No</no></label>
+
   
     </div>
   </p>
   
   <!--query.port-->
- 
-  <p>
-   <input type="text" name="query.port" placeholder="Query port"><br />
- </p>
+   <div id="queryPort">
+   <input type="text" id="queryPortValue" name="query.port" placeholder="Query port"><br />
+  </div>
 
  <!--enable-rcon-->
 
@@ -264,36 +408,25 @@ $(function(){
     <label for ="enableRconYes">Yes</label>
 
     <input type = "radio" id="enableRconNo" value = "false" name = "enable-rcon" checked="checked">
-    <label for ="enableRconNo">No</no>
+    <label for ="enableRconNo">No</no></label>
+
   
     </div>
   </p>
 
+<div id="rconConfig">
 <!--rcon.port-->
-
-<p>
- <input type="text" name="rcon.port" placeholder="Rcon port"><br />
-</p>
+ <input type="text" id="rconPortValue" name="rcon.port" placeholder="Rcon port"><br />
 
 <!--rcon.password-->
-
 <p>
- <input type="text" name="rcon.password" placeholder="Rcon password"><br />
+ <input type="password" id="rconPasswordValue" name="rcon.password" placeholder="Rcon password"><br />
 </p>
+ </div>
 
-<!--snooper-enabled-->
-
- <p>
-    <label class="elementLabel" for="buttonSet">Enable snooper</label>
-   <div class="buttonSet" id="enableSnooper">
-    <input type = "radio" id="enableSnooperYes" value = "true" name = "snooper-enabled">
-    <label for ="enableSnooperYes">Yes</label>
-
-    <input type = "radio" id="enableSnooperNo" value = "false" name = "snooper-enabled" checked="checked">
-    <label for ="enableSnooperNo">No</no>
-    </div>
-  </p>
 </fieldset>
+</p>
+<p>
 <fieldset>
   <legend>Gameplay settings</legend>
 
@@ -315,10 +448,10 @@ $(function(){
    <p>
     <label class="elementLabel" for="buttonSet">Enable pvp</label>
    <div class="buttonSet" id="enablePvp">
-    <input type = "radio" id="enablePvpYes" value = "true" name = "pvp">
+    <input type = "radio" id="enablePvpYes" value = "true" name = "pvp" checked="checked" >
     <label for ="enablePvpYes">Yes</label>
 
-    <input type = "radio" id="enablePvpNo" value = "false" name = "pvp" checked="checked">
+    <input type = "radio" id="enablePvpNo" value = "false" name = "pvp" >
     <label for ="enablePvpNo">No</no>
     </div>
   </p>
@@ -326,7 +459,7 @@ $(function(){
   <!--difficulty-->	
 
    <p>
-     <label class="elementLabel" for="buttonSet">Default gamemode</label>
+     <label class="elementLabel" for="buttonSet">Difficulty</label>
 
    <div class="buttonSet" id="difficulty">
     <input type = "radio" id="hard" value = "3" name = "difficulty">
@@ -344,7 +477,8 @@ $(function(){
    </p>
 
 </fieldset>
-
+</p>
+<p>
 <fieldset>
   <legend>World settings</legend>
 
@@ -352,7 +486,7 @@ $(function(){
 
   <p>
     
-   <label class="elementLabel" for="levelType">Level type</label>
+   <label class="elementLabel" for="buttonSet">Level type</label>
 
   <div class="buttonSet" id="levelType">
   <input type = "radio" id="default" value = "DEFAULT" name = "level-type" checked="checked">
@@ -369,24 +503,38 @@ $(function(){
   </div>
   </p>
    
+
+  <!--advanced-settings-->
+  <label class="elementLabel" for="buttonSet">Advanced level settings</label>
+
+  <div class="buttonSet" id="advancedLevelSettings">
+  <input type = "radio" id="advancedLevelSettingsYes" name = "advancedSettings" value = "true" >
+  <label for ="advancedLevelSettingsYes">Yes</label>
+
+  <input type = "radio" id="advancedLevelSettingsNo" name = "advancedSettings" value = "false" checked="checked" >
+  <label for ="advancedLevelSettingsNo">No</label>
+  </div>
+
+
+
+
     <!--generator-settings-->
 
-  <p>
-   <input type="text" name="generator-settings" placeholder="Generator settings"><br />
- </p>
+  <div id="advancedSettings">
+   <p>
+   <input type="text" id="generatorSettings"name="generator-settings" placeholder="Generator settings"><br />
 
+</p>
  <!--level-seed-->
 
  <p>
-   <input type="text" name="level-seed" placeholder="Level seed"><br />
+   <input type="text" id="levelSeed" name="level-seed" placeholder="Level seed"><br />
  </p>
  
  <!--resource-pack-->
 
-<p>
-   <input type="text" name="resource-pack" placeholder="Resource pack"><br />
-</p>
-
+   <input type="text" id="resourcePack" name="resource-pack" placeholder="Resource pack"><br />
+</div>
  <!--generate-structures-->
 
    <p>
@@ -396,7 +544,8 @@ $(function(){
     <label for ="generateStructuresYes">Yes</label>
 
     <input type = "radio" id="generateStructuresNo" value = "false" name = "generate-structures">
-    <label for ="generateStructuresNo">No</no>
+    <label for ="generateStructuresNo">No</no></label>
+
     </div>
   </p>
 
@@ -409,7 +558,8 @@ $(function(){
     <label for ="enableSpawnAnimalsYes">Yes</label>
 
     <input type = "radio" id="enableSpawnAnimalsNo" value = "false" name = "spawn-animals">
-    <label for ="enableSpawnAnimalsNo">No</no>
+    <label for ="enableSpawnAnimalsNo">No</no></label>
+
     </div>
   </p>
 
@@ -422,7 +572,8 @@ $(function(){
     <label for ="enableSpawnMonstersYes">Yes</label>
 
     <input type = "radio" id="enableSpawnMonstersNo" value = "false" name = "spawn-monsters">
-    <label for ="enableSpawnMonstersNo">No</no>
+    <label for ="enableSpawnMonstersNo">No</no></label>
+
     </div>
   </p>
 
@@ -435,9 +586,11 @@ $(function(){
     <label for ="enableSpawnNpcsYes">Yes</label>
 
     <input type = "radio" id="enableSpawnNpcsNo" value = "false" name = "spawn-npcs">
-    <label for ="enableSpawnNpcsNo">No</no>
+    <label for ="enableSpawnNpcsNo">No</no></label>
+
     </div>
   </p>
+
 <!--allow-nether-->    
  
   <p>
@@ -447,27 +600,30 @@ $(function(){
     <label for ="allowNetherYes">Yes</label>
 
     <input type = "radio" id="allowNetherNo" value = "false" name = "allow-nether">
-    <label for ="allowNetherNo">No</no>
+    <label for ="allowNetherNo">No</no></label>
+
     </div>
   </p>
 
 <!--max-build-height-->
  
  <p>
-  <label for = "maxBuildHeightSliderValue">Max build height: <span id="maxBuildHeightSliderValue">256 </span></label>
-  <div id="maxBuildHeight"></div>
+  <label for = "maxBuildHeightSliderValue">Max build height: <span id="maxBuildHeightSliderValue">256 </span></label> blocks
+  <div div class="slider" id="maxBuildHeight"></div>
   <input id="maxBuildHeightInputValue" name="max-build-height" style="display: none"/>
 </p>
 
 <!--view-distance-->
 
 <p>
-  <label for = "maxViewDistanceSliderValue">Max view distance: <span id="maxViewDistanceSliderValue">10 </span></label>
-  <div id="maxViewDistance"></div>
+  <label for = "maxViewDistanceSliderValue">Max view distance: <span id="maxViewDistanceSliderValue">10 </span></label> chunks (radius)
+  <div div class="slider" id="maxViewDistance"></div>
   <input id="maxViewDistanceInputValue" name="view-distance" style="display: none"/>
 </p>
 
 </fieldset>
+</p>
+<p>
 <fieldset>
   <legend>Server settings</legend>
 
@@ -504,7 +660,8 @@ $(function(){
     <label for ="onlineModeYes">Yes</label>
 
     <input type = "radio" id="onlineModeNo" value = "false" name = "online-mode">
-    <label for ="onlineModeNo">No</no>
+    <label for ="onlineModeNo">No</no></label>
+
     </div>
   </p>
 
@@ -512,21 +669,27 @@ $(function(){
 
 <p>
   <label for = "maxPlayersSliderValue">Player limit: <span id="maxPlayersSliderValue">25 </span></label>
-  <div id="maxPlayers"></div>
+  <div div class="slider" id="maxPlayers"></div>
   <input id="maxPlayersInputValue" name="max-players" style="display: none"/>
 
 </p>
 
 </fieldset>
+</p>
+<p>
+</p>
+
 <fieldset>
   <legend>Admin settings</legend>
 
 <!--op-permission-level-->    
 
  <p>
-  <label for = "opPermissionLevel">Op permission level: 
-  <span id="currentPermissionLevel">3 </span></label>
-  <div id="opPermissionLevel"></div>
+  <label for = "opPermissionLevelSliderValue">Op permission level: 
+  <span id="opPermissionLevelSliderValue">3 </span></label>
+  <div div class="slider" id="opPermissionLevel"></div>
+  <input id="opPermissionLevelInputValue" name="op-permission-level" style="display: none"/>
+
 </p>
 
 <!--allow-flight-->    
@@ -539,7 +702,8 @@ $(function(){
     <label for ="allowFlightYes">Yes</label>
 
     <input type = "radio" id="allowFlightNo" value = "false" name = "allow-flight" checked="checked">
-    <label for ="allowFlightNo">No</no>
+    <label for ="allowFlightNo">No</no></label>
+
   
     </div>
 </p>
@@ -553,7 +717,8 @@ $(function(){
     <label for ="whiteListYes">Yes</label>
 
     <input type = "radio" id="whiteListNo" value = "false" name = "white-list" checked="checked">
-    <label for ="whiteListNo">No</no>
+    <label for ="whiteListNo">No</no></label>
+
   
     </div>
 </p>
@@ -568,7 +733,8 @@ $(function(){
     <label for ="announceYes">Yes</label>
 
     <input type = "radio" id="announceNo" value = "false" name = "announce-player-achievements" >
-    <label for ="announceNo">No</no>
+    <label for ="announceNo">No</no></label>
+
   
     </div>
 </p>
@@ -582,7 +748,8 @@ $(function(){
     <label for ="commandBlockYes">Yes</label>
 
     <input type = "radio" id="commandBlockNo" value = "false" name = "enable-command-block" >
-    <label for ="commandBlockNo">No</no>
+    <label for ="commandBlockNo">No</no></label>
+
   
     </div>
 </p>
@@ -596,17 +763,24 @@ $(function(){
     <label for ="debugYes">Yes</label>
 
     <input type = "radio" id="debugNo" value = "false" name = "debug" checked="checked">
-    <label for ="debugNo">No</no>
+    <label for ="debugNo">No</no></label>
+
   
     </div>
 </p>
 
 <!--player-idle-timeout-->
 
-<p>
- <input type="text" name="player-idle-timeout" placeholder="Player idle timeout"><br />
+ <p>
+  <label for = "playerIdleTimeoutSliderValue">Player idle timeout: 
+  <span id="playerIdleTimeoutSliderValue">300 </span> (minutes)</label>
+  <div div class="slider" id="playerIdleTimeout"></div>
+  <input id="playerIdleTimeoutInputValue" name="player-idle-timeout" style="display: none"/>
+
 </p>
+
 </fieldset>
+</p>
 <p>
 
 <input type="submit" id="createWorldButton" value="Create world" />
@@ -614,7 +788,6 @@ $(function(){
 </p>
 
 </form>
+
 </body>
-
-
 </html>
