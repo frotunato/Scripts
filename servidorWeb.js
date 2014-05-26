@@ -5,13 +5,6 @@ var router = require('./router.js');
 var requestHandler = require('./requestHandler.js');
 var qs = require('querystring');
 
-/*
-var handle = {};
-
-handler['/startJob'] = requestHandler.startJob;
-handler['/stopJob'] = requestHandler.stoptJob;
-handler['/newWorld'] = requestHandler.newWorld(); 
-*/
   function iniciar(route, handle) {
   function onRequest(request, response) {
         var dataPosteada = "";
@@ -37,32 +30,3 @@ handler['/newWorld'] = requestHandler.newWorld();
 }
 
 exports.iniciar = iniciar;
-/*
-  http.createServer(function (request, response) {
-  router.route(handler,pathname,response);
-
-
-
-    fs.readFile('pagina.html',function (err, data){
-        response.writeHead(200, {'Content-Type': 'text/html','Content-Length':data.length});
-        response.write(data);
-        response.end();
-    });
-
-}).listen(8000);
-
-
-*/
-
-/* var pathname = url.parse(request.url).pathname;
-    var body ='';
-  	request.on('data', function (data){
-    body += data;
-  });
-
-    request.on('end', function () {
-            var POST = qs.parse(body);
-            json_info = JSON.stringify(POST);
-            console.log("Datos recibidos:"+ json_info);
-          });
-*/
