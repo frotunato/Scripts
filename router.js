@@ -11,7 +11,3 @@ function route(handle, pathname, response, postData) {
 }
 
 exports.route = route;
-
-
-
-
