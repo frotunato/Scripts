@@ -1,26 +1,80 @@
 var fs = require('fs');
 var qs = require('querystring');
+var database = require('./database.js');
 
-function init(serverProperties, callback){
-	var POST = qs.parse(serverProperties);
-	json2 = JSON.parse(json);
-	directory = json2['level-name'];
+function init(POST, callback){
+	var serverProperties = qs.parse(POST);
+	directory = serverProperties['level-name'];
 	fs.mkdir(directory,function(){
-			createFileFromJson(directory,json2,function(message){
-			console.log(message);
-			})
-		console.log('Directorio' + directory + ' creado');
-	})
+			createFileFromJson(directory,serverProperties,function(message){
+			console.log(message); 
+        encodeJSON(serverProperties, function(data){
+        database.insertToDB(data,'worldList','mongoDB');
+      });
+    });
+    console.log('Directorio ' + directory + ' creado');
+    callback('Mundo creado');
+  });
 }
 
 
+function getWorldList(callback){
+  database.queryAll('worldList','mongoDB', function(data){
+     decodeJSON(data, function(decodedData){
+           //console.log("DECODED DATA " + decodedData)
+           callback(decodedData);
+     })
+  });
+}
+
+function getWorldInfo(id, callback){
+  value = id.substring(3);
+  //rawValue = JSON.parse(ids);
+  // value = rawValue['id'];
+  database.querySingleValue(value,'worldList','mongoDB',function(data){
+    decodeJSON(data,function(decodedData){
+      callback(decodedData);
+    })
+  })
+}
+
+
+function getWorldFields(value, callback){
+  database.queryValues(value,'worldList', 'mongoDB', function(data){
+    decodeJSON(data,function(decodedData){
+      callback(decodedData);
+    });
+  });
+}
+
+function encodeJSON(json, callback){
+    var rawJson = JSON.stringify(json);
+    var modifiedJson = rawJson.replace(/\./g,'^');
+    var finalJson = JSON.parse(modifiedJson);
+    callback(finalJson);
+}
+
+function decodeJSON(jsonArray, callback){
+    res = [];
+    //console.dir(jsonArray);
+    for (var i = jsonArray.length - 1; i >= 0; i--) {
+      rawJson = JSON.stringify(jsonArray[i]);
+      var modifiedJson = rawJson.replace(/\^/g,'.');
+      var finalJson = JSON.parse(modifiedJson);
+      res.push(finalJson);
+    };
+   // var rawJson = json.stringify(json);
+    //JSON.parse(res);
+    callback(res);
+}
 
 function readJson(worldLocation, callback){
+    
     //imports
     var fs = require('fs');
     var readline = require('readline');
     var stream = require('stream');
-    var result;
+   
     //variables
     var instream = fs.createReadStream(worldLocation + 'server.properties');
     var outstream = new stream;
@@ -56,3 +110,6 @@ function createFileFromJson(directory, data, callback){
 }
 
 exports.init = init;
+exports.getWorldList = getWorldList;
+exports.getWorldFields = getWorldFields;
+exports.getWorldInfo = getWorldInfo;
