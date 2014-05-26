@@ -1,0 +1,1040 @@
+<html>
+<head>
+  <title>World creation</title>
+ 
+  <style type="text/css">
+  
+  body {
+    font-family: 'Segoe UI';
+    background-image: url('cubes.png');
+    background-repeat:repeat;
+  }
+
+  fieldset{
+    border-radius: 5px;
+    border:2px solid #CCC;
+    width:500px;
+  }
+   /*
+    .singleRow {
+      float: left;
+      width: 400px;
+    }
+ */
+  fieldset legend {
+    font-family: 'Segoe UI';
+    background: #fff;
+    color: #464646;
+    font-weight:700;
+    padding: 4px 10px ;
+    font-size: 15px;
+    border-radius: 3px;
+    box-shadow: 0 0 0 2px #ddd;
+    margin-left: 10px;
+  }
+ 
+  
+  input[type=text], input[type=password] {
+    margin: 2px;
+    padding: 0 10px;
+    width: 120px;
+    height: 24px;
+    color: #404040;
+    border: 1px solid;
+    border-color: #c4c4c4 #d1d1d1 #d4d4d4;
+    border-radius: 5px;
+    outline: 5px ;
+    -moz-outline-radius: 3px;
+    -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.12);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.12);
+  }
+
+
+  .slider{
+    max-width: 150px;
+    }   
+     .buttonSet{
+    -khtml-user-select: none;
+     -moz-user-select: -moz-none;
+     -webkit-user-select: none; 
+      font-size: .6em;
+    }
+.column{
+    display: inline-block;
+    margin-left: 23px;
+    vertical-align: top;
+   
+}
+.column + .column{
+margin-left:25px;
+}
+
+    .elementLabel{
+      float:left;
+      padding-right: 10px;
+    }
+
+
+    </style>
+  <meta charset = "UTF-8" />
+  <meta http-equiv="Content-Type" content="text/html">
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html">
+  <link rel="stylesheet" type="text/css" media="all" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/base/jquery-ui.css">
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+
+  <script type="text/javascript">
+ 
+
+(function ($) {
+    $.fn.loadJSON = function (obj, options) {
+
+        function setElementValue(element, value, name) {
+            var type = element.type || element.tagName;
+            if (type == null)
+                return;
+            type = type.toLowerCase();
+            switch (type) {
+
+                case 'radio':
+                    if (value.toString().toLowerCase() == element.value.toLowerCase())
+                        $(element).attr("checked", "checked");
+                    break;
+
+                case 'checkbox':
+                    if (value)
+                        $(element).attr("checked", "checked");
+                    break;
+
+                case 'select-multiple':
+                    var values = value.constructor == Array ? value : [value];
+                    for (var i = 0; i < element.options.length; i++) {
+                        for (var j = 0; j < values.length; j++) {
+                            element.options[i].selected |= element.options[i].value == values[j];
+                        }
+                    }
+                    break;
+
+                case 'select':
+                case 'select-one':
+                case 'text':
+                case 'hidden':
+                    $(element).attr("value", value);
+                    break;
+                case 'a':
+                    var href = $(element).attr("href");
+                    var iPosition = href.indexOf('?');
+                    if (iPosition > 0) // if parameters in the URL exists add new pair using &
+                        href = href.substring(0, iPosition) + '?' + name + '=' + value;
+                    else//otherwise attach pair to URL
+                        href = href + '?' + name + '=' + value;
+                    $(element).attr("href", href);
+                    break;
+                case 'img': //Assumption is that value is in the HREF$ALT format
+                    var iPosition = value.indexOf('$');
+                    var src = "";
+                    var alt = "";
+                    if (iPosition > 0) {
+                        src = value.substring(0, iPosition);
+                        alt = value.substring(iPosition + 1);
+                    }
+                    else {
+                        src = value;
+                        var iPositionStart = value.lastIndexOf('/')+1;
+                        var iPositionEnd = value.indexOf('.');
+                        alt = value.substring(iPositionStart, iPositionEnd);
+                    }
+                    $(element).attr("src", src);
+                    $(element).attr("alt", alt);
+                    break;
+
+                case 'textarea':
+                case 'submit':
+                case 'button':
+                default:
+                    try {
+                        $(element).html(value);
+                    } catch (exc) { }
+            }
+
+        }
+
+        function browseJSON(obj, element, name) {
+
+            // no object
+            if (obj == undefined) {
+            }
+            // branch
+            else if (obj.constructor == Object) {
+                for (var prop in obj) {
+                    if (prop == null)
+                        continue;
+                    //Find an element with class, id, name, or rel attribute that matches the propertu name
+                    var child = jQuery.makeArray(jQuery("." + prop, element)).length > 0 ? jQuery("." + prop, element) :
+                                                    jQuery("#" + prop, element).length > 0 ? jQuery("#" + prop, element) :
+                                                    jQuery('[name="' + prop + '"]', element).length > 0 ? jQuery('[name="' + prop + '"]', element) : jQuery('[rel="' + prop + '"]');
+                    if (child.length != 0)
+                        browseJSON(obj[prop], jQuery(child, element), prop);
+                }
+            }
+            // array
+            else if (obj.constructor == Array) {
+                if (element.length > 0 && element[0].tagName == "SELECT") {
+                    setElementValue(element[0], obj, name);
+                } else {
+                    var arr = jQuery.makeArray(element);
+                    //how many duplicate
+                    var nbToCreate = obj.length - arr.length;
+                    var i = 0;
+                    for (iExist = 0; iExist < arr.length; iExist++) {
+                        if (i < obj.length) {
+                            $(element).eq(iExist).loadJSON(obj[i]);
+                        }
+                        i++;
+                    }
+                    //fill started by last
+                    i = obj.length - 1;
+                    for (iCreate = 0; iCreate < nbToCreate; iCreate++) {
+                        //duplicate the last
+                        $(arr[arr.length - 1]).clone(true).insertAfter(arr[arr.length - 1]).loadJSON(obj[i]);
+                        i--;
+                    }
+                }
+            }
+            // data only
+            else {
+                var value = obj;
+                var type;
+                if (element.length > 0) {
+                    for (i = 0; i < element.length; i++)
+                        setElementValue(element[i], obj, name);
+                }
+                else {
+                    setElementValue(element, obj, name);
+                }
+            }
+        } //function browseJSON end
+
+        var defaults = {
+        };
+
+        properties = $.extend(defaults, options);
+
+        return this.each(function () {
+
+            if (obj.constructor == String) {
+                var element = $(this);
+                $.get(obj, function (data) {
+                    element.loadJSON(data);
+                });
+            }
+
+            else {
+                browseJSON(obj, this);
+            }
+        });
+    };
+})(jQuery);
+
+
+
+/////////////////////////////////
+/*
+$(function(){
+  $('#playerIdleTimeout').slider({ 
+    max: 600,
+    min: 0,
+    value: 300,
+    animate:"fast",
+    step:20,
+    slide: function(e,ui) {
+      $('#playerIdleTimeoutSliderValue').html(ui.value);
+    }
+    ,change: function(e,ui) {
+      $('#playerIdleTimeoutInputValue').attr('value', ui.value);
+    }
+  });
+});
+    */
+  
+$(function(){
+  $('#playerIdleTimeout').slider({ 
+    max: 600,
+    min: 0,
+    value: 300,
+    animate:"fast",
+    step:20,
+    slide: function(e,ui) {
+    if (event.originalEvent) {
+            $('#playerIdleTimeoutSliderValue').html(ui.value);
+        }else{
+            $('#playerIdleTimeoutSliderValue').html(ui.value);
+        }
+    },
+    change: function(e,ui){
+            $('#playerIdleTimeoutSliderValue').html(ui.value);
+            $('#playerIdleTimeoutInputValue').attr('value', ui.value);
+    } 
+  });
+});
+
+$(function(){
+  $('#maxBuildHeight').slider({ 
+    max: 256,
+    min: 64,
+    value: 256,
+    animate:"fast",
+    step:16,
+    slide: function(e,ui) {
+      if (event.originalEvent) {
+        $('#maxBuildHeightSliderValue').html(ui.value);
+      }else{
+        $('#maxBuildHeightSliderValue').html(ui.value);
+      }
+    },change: function(e,ui) {
+      $('#maxBuildHeightInputValue').attr('value', ui.value);
+      $('#maxBuildHeightSliderValue').html(ui.value);
+    }
+  });
+});
+
+$(function(){
+  $('#maxViewDistance').slider({ 
+    max: 15,
+    min: 3,
+    value: 10,
+    step:1,
+    animate:"fast",
+    slide: function(e,ui) {
+      if (event.originalEvent) {
+        $('#maxViewDistanceSliderValue').html(ui.value);
+      }else{
+        $('#maxViewDistanceSliderValue').html(ui.value);
+      }    
+    }
+    ,change: function(e,ui){
+      $('#maxViewDistanceSliderValue').html(ui.value);
+      $('#maxViewDistanceInputValue').attr('value',ui.value);
+    }
+  });
+}); 
+ 
+$(function(){
+  $('#opPermissionLevel').slider({ 
+    max: 4,
+    min: 1,
+    value: 3,
+    step:1,
+    animate:"fast",
+    slide: function(e,ui) {
+      if (event.originalEvent) {
+      $('#opPermissionLevelSliderValue').html(ui.value);
+      }else{
+      $('#opPermissionLevelSliderValue').html(ui.value);
+      }    
+    }
+    ,change: function(e,ui){
+      $('#opPermissionLevelSliderValue').html(ui.value);
+      $('#opPermissionLevelInputValue').attr('value',ui.value);
+    }
+  });
+});
+
+$(function(){
+  $('#maxPlayers').slider({ 
+    max: 50,
+    min: 2,
+    value: 25,
+    step:1,
+    animate:"fast",
+    slide: function(e,ui) {
+      if (event.originalEvent) {
+      $("#maxPlayersSliderValue").html(ui.value);
+      }else{
+      $("#maxPlayersSliderValue").html(ui.value);
+      }    
+    }
+    ,change: function(e,ui){
+      $("#maxPlayersSliderValue").html(ui.value);
+      $("#maxPlayersInputValue").attr('value',ui.value);
+    }
+  });
+});
+
+function refreshButtons(){
+  var buttons = ["#defaultGamemode","#levelType","#defaultDifficulty","#allowFlight",
+  "#enableWhiteList","#enableAnnounce","#enableCommandBlock","#forceGamemode",
+  "#enableQuery","#enableDebug","#enableRcon","#enableSnooper","#enableHardcore","#enablePvp","#generateStructures",
+  "#enableSpawnAnimals","#enableSpawnMonsters","#enableSpawnNpcs","#allowNether","#onlineMode","#advancedLevelSettings"];
+  for (var i = buttons.length - 1; i >= 0; i--) {
+    $(buttons[i]).buttonset("refresh");
+  };
+}
+ 
+function evaluateHiddenDivs(){
+  var hiddenDivs = ["#advancedSettings","#rconConfig","#queryPort"];
+   /*
+    console.log($("#advancedSettings" + " input").attr('value'))
+    console.log($("#queryPort :input").attr('value'))
+    console.log($("#rconConfig :input").attr('value'))
+*/
+  
+  for (var i = hiddenDivs.length - 1; i >= 0; i--) {
+    console.log( $(hiddenDivs[i] + " input").attr('value') );
+    if ($(hiddenDivs[i] + " :input").attr("value") != ""){
+      $(hiddenDivs[i]).show(100);
+    }else if ($(hiddenDivs[i] + " :input").attr("value") == undefined){
+      $(hiddenDivs[i]).hide(100);
+    }
+  };
+
+}
+
+$(document).ready(function () { 
+  //  $("#prueba").load( "/info", {id:String("5380e27cdd7f1c64137cabf4")} );
+    $('#queryPort').hide();
+    $('#rconConfig').hide();
+    $('#advancedSettings').hide();
+
+  $.post("/info", {id:String("5382653fee825c4c16be1eba")} , function(data){
+    var response = JSON.parse(data);
+    $('#worldForm').loadJSON(response)
+    refreshButtons();
+    //setTimeout(,1000);
+    evaluateHiddenDivs()
+    $('#playerIdleTimeout').slider("value",response[0]['player-idle-timeout']);
+    $('#maxBuildHeight').slider("value",response[0]['max-build-height']);
+    $('#maxViewDistance').slider("value",response[0]['view-distance']);
+    $('#opPermissionLevel').slider("value",response[0]['op-permission-level']);
+    $('#maxPlayers').slider("value",response[0]['max-players']);
+ })
+
+    /*
+    $("#enableRcon").buttonset("refresh");
+    $("#enableSnooper").buttonset("refresh");
+    $("#enableRcon").buttonset("refresh");
+    $("#enableHardcore").buttonset("refresh");
+  */
+   
+    /*
+    if(response[0]['advanced-settings'] == 'true'){
+      $('#advancedSettings').show();
+    }else{
+     
+    }
+ */
+ 
+
+
+   
+    
+    $("#enableQuery input[type=radio]").change(function () {
+    var data = this.value;
+    var array = ["#queryPortValue"];
+    toggleFields("#queryPort",array,data);
+    });
+
+    $("#enableRcon input[type=radio]").change(function () {
+    var data = this.value;
+    var array = ["#rconPortValue","#rconPasswordValue"];
+
+    toggleFields("#rconConfig",array,data);
+    });
+
+    $("#advancedLevelSettings input[type=radio]").change(function () {
+    var data = this.value;
+    var array = ["#generatorSettings","#levelSeed","#resourcePack"];
+    toggleFields("#advancedSettings",array,data);
+    });
+
+/*
+    $("#playerTimeoutSettings input[type=radio]").change(function () {
+    var data = this.value;
+    var array = ["#valores"];
+    toggleSliders("#playerTimeoutSlider",array,data);
+    });
+ 
+*/
+
+
+  /*
+function toggleSliders(section, sliders, value) {
+    if (value=="true"){
+        $(section).show(100);
+    }else if(value=="false"){
+        $(section).hide(100);
+        //for (var i = sliders.length - 1; i >= 0; i--) {
+       // $(sliders[i]).slider("option","value",0);
+        $("#playerIdleTimeout").slider("value" , 0);
+        $("#valores").val(0); 
+
+     // };
+
+    }
+}
+*/
+function toggleFields(section, fields, value) {
+    if (value=="true"){
+        $(section).show(100);
+    }else if(value=="false"){
+        $(section).hide(100);
+      for (var i = fields.length - 1; i >= 0; i--) {
+        $(fields[i]).val("");
+      };
+    }
+}
+
+});
+
+$(function(){
+  $( '#defaultGamemode' ).buttonset();
+  $( "#defaultGamemode" ).find("label").unbind("mouseup");
+})
+
+$(function(){
+  $( '#advancedLevelSettings' ).buttonset();
+  $( "#advancedLevelSettings" ).find("label").unbind("mouseup");
+})
+$(function(){
+  $( '#levelType').buttonset();
+  $( "#levelType" ).find("label").unbind("mouseup");
+})
+
+
+$(function(){
+  $( '#defaultDifficulty' ).buttonset();
+  $( "#defaultDifficulty" ).find("label").unbind("mouseup");
+})
+
+$(function(){
+  $( '#allowFlight' ).buttonset();
+  $( "#allowFlight" ).find("label").unbind("mouseup");
+})
+
+$(function(){
+  $( '#enableWhiteList' ).buttonset();
+  $( "#enableWhiteList" ).find("label").unbind("mouseup");
+})
+
+$(function(){
+  $( '#enableAnnounce' ).buttonset();
+  $( "#enableAnnounce" ).find("label").unbind("mouseup");
+})
+
+$(function(){
+  $( '#enableCommandBlock' ).buttonset();
+  $( "#enableCommandBlock" ).find("label").unbind("mouseup");
+})
+
+$(function(){
+  $( '#forceGamemode' ).buttonset();
+  $( "#forceGamemode" ).find("label").unbind("mouseup");
+})
+$(function(){
+  $( '#enableQuery' ).buttonset();
+  $( "#enableQuery" ).find("label").unbind("mouseup");
+})
+$(function(){
+  $( '#enableDebug' ).buttonset();
+  $( "#enableDebug" ).find("label").unbind("mouseup");
+})
+$(function(){
+  $( '#enableRcon' ).buttonset();
+  $( "#enableRcon" ).find("label").unbind("mouseup");
+})
+$(function(){
+  $( '#enableSnooper' ).buttonset();
+  $( "#enableSnooper" ).find("label").unbind("mouseup");
+})
+$(function(){
+  $( '#enableHardcore' ).buttonset();
+  $( "#enableHardcore" ).find("label").unbind("mouseup");
+})
+$(function(){
+  $( '#enablePvp' ).buttonset();
+  $( "#enablePvp" ).find("label").unbind("mouseup");
+})
+$(function(){
+  $( '#generateStructures' ).buttonset();
+  $( "#generateStructures" ).find("label").unbind("mouseup");
+})
+$(function(){
+  $( '#enableSpawnAnimals' ).buttonset();
+  $( "#enableSpawnAnimals" ).find("label").unbind("mouseup");
+})
+$(function(){
+  $( '#enableSpawnMonsters' ).buttonset();
+  $( "#enableSpawnMonsters" ).find("label").unbind("mouseup");
+})
+$(function(){
+  $( '#enableSpawnNpcs' ).buttonset();
+  $( "#enableSpawnNpcs" ).find("label").unbind("mouseup");
+})
+$(function(){
+  $( '#allowNether' ).buttonset();
+  $( "#allowNether" ).find("label").unbind("mouseup");
+})
+$(function(){
+  $( '#onlineMode' ).buttonset();
+  $( "#onlineMode" ).find("label").unbind("mouseup");
+})
+</script>
+  
+</head>
+<body>
+  
+<form id="worldForm" action="/create" method="post">
+
+  <fieldset class="singleRow">
+     <legend>Gamemode settings</legend>
+
+     <!--gamemode-->
+
+    <p>
+    <label class="elementLabel" for="buttonSet">Default gamemode</label>
+    <div class="buttonSet" id="defaultGamemode">
+    <input type = "radio" id="survival" value = "0" name = "gamemode">
+    <label for ="survival">Survival</label>
+
+    <input type = "radio" id="creative" value = "1" name = "gamemode">
+    <label for ="creative">Creative</label>
+   
+    <input type = "radio" id="adventure" value = "2" name = "gamemode">
+    <label for ="adventure">Adventure</label>
+    </div>
+    </p>
+    
+
+    <!--force-gamemode-->
+  <p>
+    <label class="elementLabel" for="buttonSet">Force gamemode</label>
+   <div class="buttonSet" id="forceGamemode">
+    <input type = "radio" id="forceGamemodeYes" value = "true" name = "force-gamemode">
+    <label for ="forceGamemodeYes">Yes</label>
+
+    <input type = "radio" id="forceGamemodeNo" value = "false" name = "force-gamemode">
+    <label for ="forceGamemodeNo">No</label>
+
+  
+    </div>
+  </p>
+  
+  </fieldset>     
+ 
+  <!--external settings-->
+ </p>
+ <p>
+  <fieldset>
+   <legend>External settings</legend>
+<!--snooper-enabled-->
+ <p>
+    <label class="elementLabel" for="buttonSet">Enable snooper</label>
+   <div class="buttonSet" id="enableSnooper">
+    <input type = "radio" id="enableSnooperYes" value = "true" name = "snooper-enabled">
+    <label for ="enableSnooperYes">Yes</label>
+
+    <input type = "radio" id="enableSnooperNo" value = "false" name = "snooper-enabled">
+    <label for ="enableSnooperNo">No</label>
+    </div>
+ </p>
+   <!--enable-query-->
+  <p>
+    <label class="elementLabel" for="buttonSet">Enable query</label>
+    <div class="buttonSet" id="enableQuery">
+    <input type = "radio" id="enableQueryYes" value = "true" name = "enable-query">
+    <label for ="enableQueryYes">Yes</label>
+    <input type = "radio" id="enableQueryNo" value = "false" name = "enable-query">
+    <label for ="enableQueryNo">No</label>
+
+  
+    </div>
+  </p>
+  
+  <!--query.port-->
+   <div id="queryPort">
+   <input type="text" id="queryPortValue" name="query.port" placeholder="Query port"><br />
+  </div>
+
+ <!--enable-rcon-->
+
+   <p>
+    <label class="elementLabel" for="buttonSet">Enable Rcon</label>
+    <div class="buttonSet" id="enableRcon">
+    <input type = "radio" id="enableRconYes" value = "true" name = "enable-rcon">
+    <label for ="enableRconYes">Yes</label>
+
+    <input type = "radio" id="enableRconNo" value = "false" name = "enable-rcon" >
+    <label for ="enableRconNo">No</label>
+    </div>
+  </p>
+
+<div id="rconConfig">
+<!--rcon.port-->
+ <input type="text" id="rconPortValue" name="rcon.port" placeholder="Rcon port"><br />
+<!--rcon.password-->
+<p>
+ <input type="password" id="rconPasswordValue" name="rcon.password" placeholder="Rcon password"><br />
+</p>
+
+</div>
+</fieldset>
+</p>
+
+<p>
+<fieldset class="singleRow">
+  <legend>Gameplay settings</legend>
+
+  <!--hardcore-->
+
+   <p>
+    <label class="elementLabel" for="buttonSet">Enable hardcore</label>
+    <div class="buttonSet" id="enableHardcore">
+    <input type = "radio" id="enableHardcoreYes" value = "true" name = "hardcore">
+    <label for ="enableHardcoreYes">Yes</label>
+    <input type = "radio" id="enableHardcoreNo" value = "false" name = "hardcore" >
+    <label for ="enableHardcoreNo">No</label>
+    </div>
+  </p>
+
+  <!--pvp-->
+
+   <p>
+    <label class="elementLabel" for="buttonSet">Enable pvp</label>
+    <div class="buttonSet" id="enablePvp">
+    <input type = "radio" id="enablePvpYes" value = "true" name = "pvp"  >
+    <label for ="enablePvpYes">Yes</label>
+    <input type = "radio" id="enablePvpNo" value = "false" name = "pvp" >
+    <label for ="enablePvpNo">No</label>
+    </div>
+  </p>
+
+  <!--difficulty-->	
+
+   <p>
+    <label class="elementLabel" for="buttonSet">Difficulty</label>
+    <div class="buttonSet" id="defaultDifficulty">
+    <input type = "radio" id="hard" value = "3" name = "difficulty" >
+    <label for ="hard">Hard</label>
+
+    <input type = "radio" id="normal" value = "2" name = "difficulty" >
+    <label for ="normal">Normal</label>
+   
+    <input type = "radio" id="easy" value = "1" name = "difficulty" >
+    <label for ="easy">Easy</label>
+
+    <input type = "radio" id="peaceful" value = "0" name = "difficulty" >
+    <label for ="peaceful">Peaceful</label>
+   
+    </div>
+   </p>
+
+</fieldset>
+</p>
+</div>
+
+<p>
+<fieldset>
+  <legend>World settings</legend>
+
+<!--level-type-->
+
+  <p>
+    
+  <label class="elementLabel" for="buttonSet">Level type</label>
+
+  <div class="buttonSet" id="levelType">
+  <input type = "radio" id="default" value = "DEFAULT" name = "level-type" >
+  <label for ="default">Default</label>
+
+  <input type = "radio" id="largeBiomes" value = "LARGEBIOMES" name = "level-type">
+  <label for ="largeBiomes">Large biomes</label>
+ 
+  <input type = "radio" id="amplified" value = "AMPLIFIED" name = "level-type">
+  <label for ="amplified">Amplified</label>
+  
+  <input type = "radio" id="flat" value = "FLAT" name = "level-type">
+  <label for ="flat">Flat</label>
+  </div>
+  </p>
+   
+
+  <!--advanced-settings-->
+  <label class="elementLabel" for="buttonSet">Advanced level settings</label>
+
+  <div class="buttonSet" id="advancedLevelSettings">
+  <input type = "radio" id="advancedLevelSettingsYes" name = "advanced-settings" value = "true" >
+  <label for ="advancedLevelSettingsYes">Yes</label>
+
+  <input type = "radio" id="advancedLevelSettingsNo" name = "advanced-settings" value = "false" >
+  <label for ="advancedLevelSettingsNo">No</label>
+  </div>
+
+
+
+
+    <!--generator-settings-->
+
+  <div id="advancedSettings">
+   <p>
+   <input type="text" id="generatorSettings"name="generator-settings" placeholder="Generator settings"><br />
+
+</p>
+ <!--level-seed-->
+
+ <p>
+   <input type="text" id="levelSeed" name="level-seed" placeholder="Level seed"><br />
+ </p>
+ 
+ <!--resource-pack-->
+
+   <input type="text" id="resourcePack" name="resource-pack" placeholder="Resource pack"><br />
+</div>
+ <!--generate-structures-->
+
+   <p>
+    <label class="elementLabel" for="buttonSet">Generate structures</label>
+   <div class="buttonSet" id="generateStructures">
+    <input type = "radio" id="generateStructuresYes" value = "true" name = "generate-structures">
+    <label for ="generateStructuresYes">Yes</label>
+
+    <input type = "radio" id="generateStructuresNo" value = "false" name = "generate-structures">
+    <label for ="generateStructuresNo">No</label>
+
+    </div>
+  </p>
+
+<!--spawn-animals-->
+
+   <p>
+    <label class="elementLabel" for="buttonSet">Spawn animals</label>
+   <div class="buttonSet" id="enableSpawnAnimals">
+    <input type = "radio" id="enableSpawnAnimalsYes" value = "true" name = "spawn-animals">
+    <label for ="enableSpawnAnimalsYes">Yes</label>
+
+    <input type = "radio" id="enableSpawnAnimalsNo" value = "false" name = "spawn-animals">
+    <label for ="enableSpawnAnimalsNo">No</label>
+
+    </div>
+  </p>
+
+<!--spawn-monsters-->
+
+  <p>
+    <label class="elementLabel" for="buttonSet">Spawn monsters</label>
+   <div class="buttonSet" id="enableSpawnMonsters">
+    <input type = "radio" id="enableSpawnMonstersYes" value = "true" name = "spawn-monsters">
+    <label for ="enableSpawnMonstersYes">Yes</label>
+
+    <input type = "radio" id="enableSpawnMonstersNo" value = "false" name = "spawn-monsters">
+    <label for ="enableSpawnMonstersNo">No</label>
+
+    </div>
+  </p>
+
+<!--spawn-npcs-->    
+
+  <p>
+    <label class="elementLabel" for="buttonSet">Spawn NPCS</label>
+   <div class="buttonSet" id="enableSpawnNpcs">
+    <input type = "radio" id="enableSpawnNpcsYes" value = "true" name = "spawn-npcs">
+    <label for ="enableSpawnNpcsYes">Yes</label>
+
+    <input type = "radio" id="enableSpawnNpcsNo" value = "false" name = "spawn-npcs">
+    <label for ="enableSpawnNpcsNo">No</label>
+
+    </div>
+  </p>
+
+<!--allow-nether-->    
+ 
+  <p>
+    <label class="elementLabel" for="buttonSet">Allow nether</label>
+   <div class="buttonSet" id="allowNether">
+    <input type = "radio" id="allowNetherYes" value = "true" name = "allow-nether">
+    <label for ="allowNetherYes">Yes</label>
+
+    <input type = "radio" id="allowNetherNo" value = "false" name = "allow-nether">
+    <label for ="allowNetherNo">No</label>
+
+    </div>
+  </p>
+
+<!--max-build-height-->
+ 
+ <p>
+  <label for = "maxBuildHeightSliderValue">Max build height: <span id="maxBuildHeightSliderValue">256 </span></label> blocks
+  <div div class="slider" id="maxBuildHeight"></div>
+  <input id="maxBuildHeightInputValue" name="max-build-height" style="display: none"/>
+</p>
+
+<!--view-distance-->
+
+<p>
+  <label for = "maxViewDistanceSliderValue">Max view distance: <span id="maxViewDistanceSliderValue">10 </span></label> chunks (radius)
+  <div div class="slider" id="maxViewDistance"></div>
+  <input id="maxViewDistanceInputValue" name="view-distance" style="display: none"/>
+</p>
+
+</fieldset>
+</p>
+<p>
+<fieldset>
+  <legend>Server settings</legend>
+
+<!--level-name-->
+
+<p>
+ <input type="text" name="level-name" placeholder="World name"><br />
+</p>
+
+<!--motd-->
+
+<p>
+ <input type="text" name="motd" placeholder="World description"><br />
+</p>
+
+<!--server-ip-->
+
+<p>
+ <input type="text" name="server-ip" placeholder="Server IP"><br />
+</p>
+
+<!--server-port-->
+
+<p>
+ <input type="text" name="server-port" placeholder="Server port"><br />
+</p>
+
+<!--online-mode-->    
+
+  <p>
+    <label class="elementLabel" for="buttonSet">Online mode</label>
+   <div class="buttonSet" id="onlineMode">
+    <input type = "radio" id="onlineModeYes" value = "true" name = "online-mode">
+    <label for ="onlineModeYes">Yes</label>
+
+    <input type = "radio" id="onlineModeNo" value = "false" name = "online-mode">
+    <label for ="onlineModeNo">No</label>
+
+    </div>
+  </p>
+
+<!--max-players-->
+
+<p>
+  <label for = "maxPlayersSliderValue">Player limit: <span id="maxPlayersSliderValue">25 </span></label>
+  <div div class="slider" id="maxPlayers"></div>
+  <input id="maxPlayersInputValue" name="max-players" style="display: none"/>
+</p>
+
+</fieldset>
+</p>
+<p>
+</p>
+
+<fieldset>
+  <legend>Admin settings</legend>
+
+<!--op-permission-level-->    
+
+ <p>
+  <label for = "opPermissionLevelSliderValue">Op permission level: 
+  <span id="opPermissionLevelSliderValue">3 </span></label>
+  <div div class="slider" id="opPermissionLevel"></div>
+  <input id="opPermissionLevelInputValue" name="op-permission-level" style="display: none"/>
+</p>
+
+<!--allow-flight-->    
+  
+<p>
+    <label class="elementLabel" for="buttonSet">Allow flight</label>
+    <div class="buttonSet" id="allowFlight">
+    <input type = "radio" id="allowFlightYes" value = "true" name = "allow-flight">
+    <label for ="allowFlightYes">Yes</label>
+    <input type = "radio" id="allowFlightNo" value = "false" name = "allow-flight" >
+    <label for ="allowFlightNo">No</label>
+    </div>
+</p>
+
+<!--white-list-->    
+
+  <p>
+    <label class="elementLabel" for="buttonSet">Enable white list</label>
+    <div class="buttonSet" id="enableWhiteList">
+    <input type = "radio" id="whiteListYes" value = "true" name = "white-list">
+    <label for ="whiteListYes">Yes</label>
+    <input type = "radio" id="whiteListNo" value = "false" name = "white-list" >
+    <label for ="whiteListNo">No</label>
+    </div>
+</p>
+
+
+<!--announce-player-achievements-->
+
+  <p>
+    <label class="elementLabel" for="buttonSet">Announce players achievements</label>
+    <div class="buttonSet" id="enableAnnounce">
+    <input type = "radio" id="announceYes" value = "true" name = "announce-player-achievements">
+    <label for ="announceYes">Yes</label>
+    <input type = "radio" id="announceNo" value = "false" name = "announce-player-achievements" >
+    <label for ="announceNo">No</label>
+    </div>
+</p>
+
+<!--enable-command-block-->
+  
+  <p>
+    <label class="elementLabel" for="buttonSet">Enable command block</label>
+    <div class="buttonSet" id="enableCommandBlock">
+    <input type = "radio" id="commandBlockYes" value = "true" name = "enable-command-block">
+    <label for ="commandBlockYes">Yes</label>
+    <input type = "radio" id="commandBlockNo" value = "false" name = "enable-command-block" >
+    <label for ="commandBlockNo">No</label>
+    </div>
+</p>
+
+<!--debug-->
+
+  <p>
+    <label class="elementLabel" for="buttonSet">Enable debug</label>
+    <div class="buttonSet" id="enableDebug">
+    <input type = "radio" id="debugYes" value = "true" name = "debug">
+    <label for ="debugYes">Yes</label>
+    <input type = "radio" id="debugNo" value = "false" name = "debug" >
+    <label for ="debugNo">No</label>
+    </div>
+</p>
+
+<!--player-idle-timeout-->
+  <p>
+
+ <label for = "playerIdleTimeoutSliderValue">Player idle timeout: 
+ <span id="playerIdleTimeoutSliderValue">300</span>
+ <div class="slider" id="playerIdleTimeout"></div>
+ <input id="playerIdleTimeoutInputValue" name="player-idle-timeout" style="display: none"/>
+ </p>
+
+ <!--
+ <p>
+  <label for = "playerIdleTimeoutSliderValue">Player idle timeout: 
+  <span id="playerIdleTimeoutSliderValue">300 </span> (minutes)</label>
+  <div div class="slider" id="playerIdleTimeout"></div>
+  <input id="playerIdleTimeoutInputValue" name="player-idle-timeout" style="display: none"/>
+</p>
+-->
+</fieldset>
+</p>
+
+<p>
+<input type="submit" id="createWorldButton" value="Create world" />
+</p>
+
+</form>
+<form action="/panel">
+    <input type="submit" value="Go back to the panel">
+</form>
+
+
+</body>
+</html>
