@@ -5,7 +5,10 @@ var handle = {}
 
 handle["/newWorld"] = requestHandler.newWorld;
 handle["/storeInDB"] = requestHandler.storeInDB;
-handle["/start"] = requestHandler.start;
-
+handle["/create"] = requestHandler.create;
+handle["/getWorldList"] = requestHandler.getWorldList;
+handle["/panel"] = requestHandler.panel;
+handle["/info"] = requestHandler.info;
+handle["/modifyWorld"] = requestHandler.modifyWorld;
 
 server.iniciar(router.route, handle);
