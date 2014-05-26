@@ -1,0 +1,149 @@
+<html lang="en-US">
+<head>
+<style type="text/css">
+  
+  body {
+    font-family: 'Segoe UI';
+    background-image: url('./cubes.png');
+    background-repeat:repeat;
+  }
+
+.buttonSet{
+  position:absolute;
+  left:0.4%;
+  top:40%;
+}
+
+#dinamicContent{
+  margin: auto;
+  top: 50%;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 200px;
+  height: 200px;
+  }
+  
+    .input {
+    width:300px;
+    margin-bottom:5px;
+    line-height:18px;
+    padding:2px 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    border:1px solid #CCC;
+    }
+  
+
+    .elementLabel{
+      float:left;
+      padding-right: 10px;
+    }
+
+
+ </style>
+
+  <meta charset = "UTF-8" />
+  <meta http-equiv="Content-Type" content="text/html">
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html">
+  <link rel="stylesheet" type="text/css" media="all" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/base/jquery-ui.css">
+
+  <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+
+  <script type="text/javascript">
+  //$("#selectable").selectable();
+/*
+$(function() {
+        $("#worldList").selectable({
+        selecting: function(event, ui){  
+            if( $(".ui-selected, .ui-selecting").length > 1){
+                  $(ui.selecting).removeClass("ui-selecting");
+            }
+        }
+    });
+    $( "#worldList" ).on( "selectableselected", function( event, ui ) {
+      console.log($("#worldList"));
+      window.alert($("#worldList").html(ui.value));
+    });
+});
+*/
+  $(function(){
+    $( '#worldList' ).buttonset();
+      });
+
+  $.post('/getWorldList', function(data){
+    var response = JSON.parse(data);
+    var cadena = "";
+    $.each(response, function(index, value){
+      if(value){
+         this.cadena = '<br><input type="radio" id="world-' + value['level-name'] + '" value="'+ value['_id'] + '" name="world"><label for="world-' + value['level-name'] + '">'+ value['level-name'] +'</label>';
+      console.log(this.cadena);
+     $("#worldList").append(this.cadena);
+      }else{
+        this.cadena = '<br>' + "Cannot get the world info from database"
+      }
+     
+    }); 
+    $('#worldList').buttonset('refresh')
+    $("#worldList").find("label").unbind("mouseup");
+    $("#worldList input[type=radio]").change(function () {
+    //actual = JSON.parse(item);
+    console.log("VALOR ACTUAL "  )
+   // console.log(actual);
+    $("#dinamicContent").load("/info", {id:String(this.value)});
+
+   // var data = this.value;
+   //window.alert();
+    
+    //var array = ["#valores"];
+    //toggleSliders("#playerTimeoutSlider",array,data);
+    });
+  });
+
+  
+
+function toggleFields(section, fields, value) {
+    if (value=="true"){
+        $(section).show(100);
+    }else if(value=="false"){
+        $(section).hide(100);
+      for (var i = fields.length - 1; i >= 0; i--) {
+        $(fields[i]).val("");
+      };
+    }
+}
+
+
+
+</script>
+
+</head>
+
+<body>
+
+  
+<label class="elementLabel" for="buttonSet">Worlds</label>
+<div class="buttonSet" id="worldList"></div>
+
+
+
+<div id="dinamicContent"></div>
+
+
+
+
+<p>
+<form action="/newWorld">
+    <input type="submit" value="Create new world">
+</form>
+</p>
+
+<form action="/fillWorldForm">
+    <input type="submit" value="See a world list">
+</form>
+
+</body>
+</html>
