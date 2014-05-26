@@ -1,73 +1,86 @@
 var fs = require('fs');
 var qs = require('querystring');
-//var db = require('./database.js');
-var gestor = require("./gestor.js");
+var world = require("./world.js");
+var database = require("./database.js");
+
 function newWorld(response, postData){
 	console.log("Petición para newWorld realizada");
-
-	var body = '<html>'+
-    '<head>'+
-    '</head>'+
-    '<body>'+
-    '<form action="/start" method="post">'+
-    '<input type="text" name="generator-settings" placeholder="Opciones de generación"> <br />'+
-	'<input type="text" name="op-permission-level" placeholder="Nivel de permisos de usuarios OP"> <br />'+
-	'<input type="text" name="allow-nether" placeholder="Permitir nether"><br />'+
-	'<input type="text" name="level-name" placeholder="Nombre para el mundo"> <br />'+
-	'<input type="text" name="enable-query" placeholder="Activar querys"> <br />'+
-	'<input type="text" name="allow-flight" placeholder="Permitir vuelo"> <br />'+
-	'<input type="text" name="announce-player-achievements" placeholder="Anunciar logros"> <br />'+
-	'<input type="text" name="rcon.password" placeholder="Contraseña de Rcon"> <br />'+
-	'<input type="text" name="server-port" placeholder="Puerto del servidor"> <br 	/>'+
-	'<input type="text" name="query.port" placeholder="Puerto para querys"> <br />'+
-	'<input type="text" name="level-type" placeholder="Tipo de mundo"> <br />'+
-	'<input type="text" name="enable-rcon" placeholder="Activar rcon"> <br />'+
-	'<input type="text" name="force-gamemode" placeholder="Forzar modo de juego"> <br />'+
-	'<input type="text" name="level-seed" placeholder="Seed del mundo"> <br />'+
-	'<input type="text" name="server-ip" placeholder="Ip del servidor"> <br />'+
-	'<input type="text" name="max-build-height" placeholder="Nivel máximo de construccion"> <br />'+
-	'<input type="text" name="spawn-npcs" placeholder="Activar spawn de NPCS"> <br />'+
-	'<input type="text" name="debug" placeholder="Activar debug"> <br />'+
-	'<input type="text" name="white-list" placeholder="Activar VIP"> <br />'+
-	'<input type="text" name="spawn-animals" placeholder="Activar spawn de animales"> <br />'+
-	'<input type="text" name="snooper-enabled" placeholder="Activar snooper"> <br />'+
-	'<input type="text" name="hardcore" placeholder="Activar hardcore"> <br />'+
-	'<input type="text" name="online-mode" placeholder="Activar online"> <br />'+
-	'<input type="text" name="resource-pack" placeholder="Pack de texturas"> <br />'+
-	'<input type="text" name="pvp" placeholder="Activar pvp"> <br />'+
-	'<input type="text" name="difficulty" placeholder="Dificultad del mundo"> <br />'+
-	'<input type="text" name="enable-command-block" placeholder="Activar bloque de comandos"> <br />'+
-	'<input type="text" name="player-idle-timeout" placeholder="Tiempo máximo de inactividad para jugadores"> <br />'+
-	'<input type="text" name="gamemode" placeholder="Modo de juego"> <br />'+
-	'<input type="text" name="max-players" placeholder="Jugadores máximos"> <br />'+
-	'<input type="text" name="rcon.port" placeholder="Puerto de Rcon"> <br /> '+
-    '<input type="text" name="spawn-monsters" placeholder="Activar spawn de monstruos"> <br /> '+
-	'<input type="text" name="view-distance" placeholder="Distancia de visión"> <br /> '+
-	'<input type="text" name="generate-structures" placeholder="Activar generación de estructuras"> <br /> '+
-	'<input type="text" name="motd" placeholder="Descripción del mundo"> <br /> '+
-
-    '<input type="submit" value="Submit text" />'+
-    '</form>'+
-    '</body>'+
-    '</html>';
-    response.writeHead(200, {"Content-Type": "text/html"});
-    response.write(body);
-    response.end();
- /*
-   fs.readFile('pagina.html',function (err, data){
-        response.writeHead(200, {'Content-Type': 'text/html','Content-Length':data.length});
-        response.write(data);
-        response.end();
-    });
-*/
+		fs.readFile('./worldForm.html', function(error, content) {
+		if (error) {
+			response.writeHead(500);
+			response.end();
+		}
+		else {
+			response.writeHead(200, { 'Content-Type': 'text/html' });
+			response.end(content, 'utf-8');
+		}
+	});
+    
 }
 
-function start(response, postData){
-		console.log('Petición enviada al gestor');
-	gestor.gestor('createWorld',postData, response, function(){
-		response.end();
+function panel(response, postData){
+console.log("Petición para panel realizada");
+fs.readFile('./panel.html', function(error, content) {
+		if (error) {
+			response.writeHead(500);
+			response.end();
+		}
+		else {
+			response.writeHead(200, { 'Content-Type': 'text/html' });
+			response.end(content, 'utf-8');
+		}
+	});
+
+}
+
+function info(response,postData){
+	console.log("Petición para info realizada");
+	world.getWorldInfo(postData, function(data){
+		response.end(JSON.stringify(data));
 	})
-	/*
+}
+
+function create(response, postData){
+	world.init(postData, function(message){
+		console.log(message);
+		response.end();
+	});	
+}
+
+function modifyWorld(response, postData){
+	console.log("Petición para modifyWorldForm realizada");
+		fs.readFile('./modifyWorldForm.html', function(error, content) {
+		if (error) {
+			response.writeHead(500);
+			response.end();
+		}
+		else {
+			response.writeHead(200, { 'Content-Type': 'text/html' });
+			response.end(content, 'utf-8');
+		}
+	});
+}
+
+function getWorldList(response){
+	fields = {'level-name':''};
+	world.getWorldFields(fields,function(data){
+		response.end(JSON.stringify(data));
+		//response.end(data);
+	});
+	console.log('Petición realizada');
+}
+
+	
+/*
+function getWorldList(response){
+	database.queryAll('worldList','mongoDB', function(data){
+	response.write(data);
+	resposne.end();
+	console.log('Petición realizada');
+	})
+}
+*/
+/*
 	var server = spawn('java',['-Xmx1024M','-Xms1024M','-jar','minecraft_server.jar'])
 
 	io.sockets.on('connection', function(socket){
@@ -114,20 +127,12 @@ function start(response, postData){
 	response.end();
 		*/
 
-}
 
 
-function storeInDB(response, postData){
-	/*
-	var POST = qs.parse(postData);
-	json = JSON.stringify(POST);
-	json2 = JSON.parse(json);
-	console.log('Guardado en base de datos ' + json);
-	db.insert(json2,'worldList','mongoDB');
-	response.end();
-	*/
-}
 
+exports.info = info;
+exports.panel = panel;
 exports.newWorld = newWorld;
-exports.storeInDB = storeInDB;
-exports.start = start;
+exports.create = create;
+exports.getWorldList = getWorldList;
+exports.modifyWorld = modifyWorld;
