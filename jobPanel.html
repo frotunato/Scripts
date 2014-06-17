@@ -123,41 +123,51 @@ $(function(){
   $( "#jobType" ).find("label").unbind("mouseup");
   var divs = $('.option');
   var jobTarget = $('#jobType');
+  
   jobTarget.change(function(event){
-  divs.hide(100);
-  hideAll();
-  $('#' + event.target.value + "Wrapper").find(":input").prop("disabled",false);
-  divs.filter('#' + event.target.value + "Wrapper").show(100);
-  $('#' + event.target.value + "Wrapper").find(":input").prop("enabled",true);
+  //cache event
+  var target = event.target.value;
 
-  //divs.show(100);
+  divs.fadeOut(100,function(){
+  $(divs).find(":input,radio").prop("disabled",true);
+  $(this).trigger('isHidden');
+  });
 
+  divs.filter('#' + target + "Wrapper").show(100,function(){
+    $('#' + target + 'Target').show(100,function(){
+      $('.' + target +'Option').find(":radio").prop("disabled",false);
+    });
+  });
+  
+  
   });
 })
 
 $(function(){
   $( '#jobTarget' ).buttonset();
   $( "#jobTarget" ).find("label").unbind("mouseup");
-  var divs = $('#scheduleType')
+  var divs = $('#backupSchedule')
   var jobTarget = $('#jobTarget')
   jobTarget.change(function(event){
   divs.show(100);
   })
 })
+ 
+function isHidden(){
+     $(".subBackupOption :input").prop("disabled",true);
+  }
+
+  function isVisible(o,zone){
+     $(zone + " :input").prop("disabled",false);
+  }
 
 $(function(){
   $( '#jobScheduleType' ).buttonset();
   $( "#jobScheduleType" ).find("label").unbind("mouseup");
   var divs = $('.subBackupOption');
-  var sliders = $('.internalSlider');
   var jobTarget = $('#jobScheduleType'); 
   
-  function isHidden(){
-     $(".subBackupOption :input").prop("disabled",true);
-  }
-  function isVisible(o,zone){
-     $(zone + " :input").prop("disabled",false);
-  }
+ 
 
   $(divs).bind('isHidden', isHidden);
   $(divs).bind('isVisible', isVisible);
@@ -166,8 +176,7 @@ $(function(){
     var target = event.target.value;
     
     divs.hide(function(){
-     $(this).trigger('isHidden');
-
+     $(divs).trigger('isHidden');
     });
     
     divs.filter('#' + target + "Area").show(function(){
@@ -177,30 +186,16 @@ $(function(){
 })
 
 function hideAll(){
-	//$('#scheduleType').hide();
-	//$('.subBackupOption').hide();
-  $('#backupWrapper').hide();
-  $('#jobTarget').hide();
-  $('#jobScheduleType').hide();
-  $('.subBackupOption').hide();
-	//$('#jobTarget input').removeAttr('checked');
-	//$('#jobTarget').buttonset('refresh');
-	//$('#jobScheduleType input').removeAttr('checked');
-  //$('#jobScheduleType').buttonset('refresh');
-  $("#relativeMinutesInputValue").prop("disabled",true);
-	$("#relativeHoursInputValue").prop("disabled",true);
-	$("#absoluteMinutesInputValue").prop("disabled",true);
-	$("#absoluteHoursInputValue").prop("disabled",true);
+	$('.option').hide();
+  $('.backupOption').hide();
+	$('.subBackupOption').hide();
+  $('.subBackupOption').find(':input').prop("disabled",true);
 }
 
 $(document).ready(function () { 
-
-
-
-//$('.option').hide();
-//hideAll();
-//window.alert($('#button').button('option','label'));
-//$( "#radio" ).button( "option", "label", "custom label" );
+hideAll();
+//window.alert($('#button').button('backupOption','label'));
+//$( "#radio" ).button( "backupOption", "label", "custom label" );
 
 });
 
@@ -219,9 +214,8 @@ $(document).ready(function () {
 		<label for ="jobTypeMantenaince">Mantenaince</label>
 	</div>
 
-<div class="option" id="backupWrapper">
-   
-    <div class="backupOption" id ="selectTarget">
+   <div class="option" id="backupWrapper">
+    <div class="backupOption" id ="backupTarget">
 	    <p><label class="elementLabel" for="buttonSet">Job target</label></p>
 	    <div class="buttonSet" id="jobTarget">
 			<input type = "radio" id="jobTargetWorld" value = "world" name = "jobTarget">
@@ -231,7 +225,7 @@ $(document).ready(function () {
 		</div>
 	</div>
 	
-	<div class="backupOption" id="scheduleType">
+	<div class="backupOption" id="backupSchedule">
 		<p>
 		<label class="elementLabel" for="buttonSet">Schedule type</label></p>
 
@@ -276,7 +270,6 @@ $(document).ready(function () {
 				</p>
 			</div>
 	</div>
-
 </div>
     <p align="center">
         <input type="submit" value="Join!" />
