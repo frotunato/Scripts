@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+ <style type="text/css">
+    #limit {
+     max-width: 400px;
+    }
+
+
+</style> 
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html">
+ <!-- <link rel="stylesheet" type="text/css" media="all" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/base/jquery-ui.css"> -->
+  <link rel="stylesheet" type="text/css" media="all" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/base/jquery-ui.css">
+  <link rel="stylesheet" type="text/css" media="all" href="http://fonts.googleapis.com/css?family=Acme">
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+
+</head>
+
+<body>
+
+ <script>
+
+$(function(){
+   $("#slider").slider();
+})
+
+$(function(){
+  $("#button").buttonset({label:"TEXTO"});
+})
+
+$(function(){
+  $('#relativeMinutes').slider({ 
+    max: 60,
+    min: 5,
+    value: 25,
+    step:1,
+    animate:"fast",
+    slide: function(event,ui) {
+    if (event.originalEvent) {
+        $('#relativeMinutesSliderValue').html(ui.value);
+    }else{
+        $('#relativeMinutesSliderValue').html(ui.value);
+    }
+    },change: function(event,ui){
+      $('#relativeMinutesInputValue').attr('value',ui.value);
+      $('#relativeMinutesSliderValue').html(ui.value);
+    },create: function(event,ui){
+      $('#relativeMinutes').slider('option','value',25)
+    }
+  });
+});
+
+$(function(){
+  $('#relativeHours').slider({ 
+    max: 24,
+    min: 1,
+    value: 10,
+    step:1,
+    animate:"fast",
+    slide: function(event,ui) {
+    if(event.originalEvent){
+      $('#relativeHoursSliderValue').html(ui.value);
+    }else{
+      $('#relativeHoursSliderValue').html(ui.value);
+    }
+    },change: function(event,ui){
+      $('#relativeHoursInputValue').attr('value',ui.value);
+      $('#relativeHoursSliderValue').html(ui.value);
+    },create: function(event,ui){
+      $('#relativeHours').slider('option','value',10)
+    }
+  });
+});
+
+$(function(){
+  $('#absoluteMinutes').slider({ 
+    max: 60,
+    min: 5,
+    value: 25,
+    step:1,
+    animate:"fast",
+    slide: function(event,ui) {
+    if(event.originalEvent){
+      $('#absoluteMinutesSliderValue').html(ui.value);
+    }else{
+      $('#absoluteMinutesSliderValue').html(ui.value);
+    }
+    },change: function(event,ui){
+      $('#absoluteMinutesSliderValue').html(ui.value);
+      $('#absoluteMinutesInputValue').attr('value',ui.value);
+    },create: function(event,ui){
+      $('#absoluteMinutes').slider('option','value',25);
+    }
+  });
+});
+
+$(function(){
+  $('#absoluteHours').slider({ 
+    max: 24,
+    min: 1,
+    value: 10,
+    step:1,
+    animate:"fast",
+    slide: function(event,ui) {
+    if(event.originalEvent){
+      $('#absoluteHoursSliderValue').html(ui.value);
+    }else{
+      $('#absoluteHoursSliderValue').html(ui.value);
+    }
+    },change: function(event,ui){
+      $('#absoluteHoursSliderValue').html(ui.value);
+      $('#absoluteHoursInputValue').attr('value',ui.value);
+    },create: function(event,ui){
+      $('#absoluteHours').slider('option','value',10)
+    }
+  });
+});
+
+$(function(){
+  $( '#jobType' ).buttonset();
+  $( "#jobType" ).find("label").unbind("mouseup");
+  var divs = $('.option');
+  var jobTarget = $('#jobType');
+  jobTarget.change(function(event){
+  divs.hide(100);
+  hideAll();
+  $('#' + event.target.value + "Wrapper").find(":input").prop("disabled",false);
+  divs.filter('#' + event.target.value + "Wrapper").show(100);
+  $('#' + event.target.value + "Wrapper").find(":input").prop("enabled",true);
+
+  //divs.show(100);
+
+  });
+})
+
+$(function(){
+  $( '#jobTarget' ).buttonset();
+  $( "#jobTarget" ).find("label").unbind("mouseup");
+  var divs = $('#scheduleType')
+  var jobTarget = $('#jobTarget')
+  jobTarget.change(function(event){
+  divs.show(100);
+  })
+})
+
+$(function(){
+  $( '#jobScheduleType' ).buttonset();
+  $( "#jobScheduleType" ).find("label").unbind("mouseup");
+  var divs = $('.subBackupOption');
+  var sliders = $('.internalSlider');
+  var jobTarget = $('#jobScheduleType'); 
+  
+  function isHidden(){
+     $(".subBackupOption :input").prop("disabled",true);
+  }
+  function isVisible(o,zone){
+     $(zone + " :input").prop("disabled",false);
+  }
+
+  $(divs).bind('isHidden', isHidden);
+  $(divs).bind('isVisible', isVisible);
+
+  jobTarget.change(function(event){
+    var target = event.target.value;
+    
+    divs.hide(function(){
+     $(this).trigger('isHidden');
+
+    });
+    
+    divs.filter('#' + target + "Area").show(function(){
+      $('#' + target + "Area").trigger('isVisible', '#' + target + "Area");
+    });
+  });
+})
+
+function hideAll(){
+	//$('#scheduleType').hide();
+	//$('.subBackupOption').hide();
+  $('#backupWrapper').hide();
+  $('#jobTarget').hide();
+  $('#jobScheduleType').hide();
+  $('.subBackupOption').hide();
+	//$('#jobTarget input').removeAttr('checked');
+	//$('#jobTarget').buttonset('refresh');
+	//$('#jobScheduleType input').removeAttr('checked');
+  //$('#jobScheduleType').buttonset('refresh');
+  $("#relativeMinutesInputValue").prop("disabled",true);
+	$("#relativeHoursInputValue").prop("disabled",true);
+	$("#absoluteMinutesInputValue").prop("disabled",true);
+	$("#absoluteHoursInputValue").prop("disabled",true);
+}
+
+$(document).ready(function () { 
+
+
+
+//$('.option').hide();
+//hideAll();
+//window.alert($('#button').button('option','label'));
+//$( "#radio" ).button( "option", "label", "custom label" );
+
+});
+
+
+</script>
+
+<div id='limit'>
+<form method="POST">
+  	
+	<p><label class="elementLabel" for="buttonSet">Job type</label></p>
+	<div class="buttonSet" id="jobType">
+		<input type = "radio" id="jobTypeBackup" value = "backup" name = "jobType">
+		<label for ="jobTypeBackup">Backup</label>
+
+		<input type = "radio" id="jobTypeMantenaince" value = "mantenaince" name = "jobType">
+		<label for ="jobTypeMantenaince">Mantenaince</label>
+	</div>
+
+<div class="option" id="backupWrapper">
+   
+    <div class="backupOption" id ="selectTarget">
+	    <p><label class="elementLabel" for="buttonSet">Job target</label></p>
+	    <div class="buttonSet" id="jobTarget">
+			<input type = "radio" id="jobTargetWorld" value = "world" name = "jobTarget">
+			 <label for ="jobTargetWorld">World</label>
+			<input type = "radio" id="jobTargetDatabase" value = "database" name = "jobTarget">
+			<label for ="jobTargetDatabase">Database</label>
+		</div>
+	</div>
+	
+	<div class="backupOption" id="scheduleType">
+		<p>
+		<label class="elementLabel" for="buttonSet">Schedule type</label></p>
+
+		<div class="buttonSet" id="jobScheduleType">
+		
+		<input type = "radio" id="jobScheduleTypeAbsolute" value = "absolute" name = "jobScheduleType">
+		<label for ="jobScheduleTypeAbsolute">Absolute</label>
+
+		<input type = "radio" id="jobScheduleTypeRelative" value = "relative" name = "jobScheduleType">
+		<label for ="jobScheduleTypeRelative">Relative</label>
+		
+		</div>
+			
+			<div class="subBackupOption" id="absoluteArea">
+				<p>
+				<label for = "absoluteMinutesSliderValue">Run every <span id="absoluteMinutesSliderValue">25 </span></label> minutes
+				<div class="internalSlider" id="absoluteMinutes"></div>
+				<input class ="internalAbsolute" id="absoluteMinutesInputValue" name="absoluteMinutes" style="display: none"/>
+				</p>
+				
+				<p>
+				<label for = "absoluteHoursSliderValue">Run every</label>
+				<span id="absoluteHoursSliderValue">10 </span> hour(s)
+				<div class="internalSlider" id="absoluteHours"></div>
+				<input class ="internalAbsolute" id="absoluteHoursInputValue" name="absoluteHours" style="display: none"/>
+				</p>
+			</div>
+				
+			<div class="subBackupOption" id="relativeArea">
+				<p>
+				<label for = "relativeMinutesSliderValue">Run every</label>
+				<span id="relativeMinutesSliderValue">25 </span> minutes
+				<div class="internalSlider" id="relativeMinutes"></div>
+				<input id="relativeMinutesInputValue" name="relativeMinutes" style="display: none"/>
+				</p>
+				 
+				<p>
+				<label for = "relativeHoursSliderValue">Run every</label>
+				<span id="relativeHoursSliderValue">10 </span> hour(s)
+				<div class="internalSlider" id="relativeHours"></div>
+				<input id="relativeHoursInputValue" name="relativeHours" style="display: none"/>
+				</p>
+			</div>
+	</div>
+
+</div>
+    <p align="center">
+        <input type="submit" value="Join!" />
+    </p>
+<div class="option" id="mantenainceWrapper">
+hola
+<input type="button" id="color" name="project">
+
+</div>
+</form>
+
+</div>
+<button>click</button>
+
+<div id="bob">Bob</div> 
+</body>
+</html>
