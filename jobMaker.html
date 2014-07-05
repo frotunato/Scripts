@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+ <style type="text/css">
+
+   #hourWrapper{
+    position:relative;
+    z-index: 2000;
+  }
+
+  select {
+    padding: 5px;
+    font-size: 13px;
+    line-height: 100%;
+    border:1px solid #ddd;
+    color: #333;
+    height: 35px;
+    -webkit-appearance: none;
+  }
+
+  option {
+    padding: 5px;
+    font-size: 11px;
+    color: #333;
+
+  }
+  .internalSlider {
+   max-width: 250px;
+ }
+ .internalHourSlider {
+   max-width: 250px;
+ } 
+
+ .sliderEnabler {
+  position: absolute;
+  float: right;
+  margin-left: 270px;
+  margin-top:-20px;
+}
+
+.tagAdder{
+  border:1px solid #ddd;
+  background-color: #eee;
+  height:25px;
+  width:25px;
+  cursor:pointer;
+  font-weight: bold;
+  font-family: Tahoma, Verdana, Segoe, sans-serif;    
+  font-size: 18px;
+  color: #333;
+  padding: 0px 0px;
+}
+.tagRemoval{
+  border:1px solid #ddd;
+  background-color: #eee;
+  height:25px;
+  width:25px;
+  cursor:pointer;
+  font-weight: bold;
+  font-family: Tahoma, Verdana, Segoe, sans-serif;    
+  font-size: 18px;
+  color: #333;
+  padding: 0px 0px;
+}
+
+
+.sliderEnabler label {
+  cursor: pointer;
+  position: absolute;
+  width: 25px;
+  height: 25px;
+  top: 0;
+  left: 0;
+  background: #eee;
+  border:1px solid #ddd;
+}
+.sliderEnabler label:after {
+  opacity: 0.2;
+  content: '';
+  position: absolute;
+  width: 9px;
+  height: 5px;
+  background: transparent;
+  top: 6px;
+  left: 7px;
+  border: 3px solid #333;
+  border-top: none;
+  border-right: none;
+
+  -webkit-transform: rotate(-45deg);
+  -moz-transform: rotate(-45deg);
+  -o-transform: rotate(-45deg);
+  -ms-transform: rotate(-45deg);
+  transform: rotate(-45deg);
+}
+
+.sliderEnabler label:hover::after {
+  opacity: 0.5;
+}
+.sliderEnabler input[type=radio]:checked + label:after {
+  opacity: 1;
+}
+
+
+.hourRemoval {
+  position: absolute;
+  float: right;
+  margin-left: 270px;
+  margin-top:-20px;
+}
+
+.hourRemoval label {
+  cursor: pointer;
+  position: absolute;
+  width: 25px;
+  height: 25px;
+  top: 0;
+  left: 0;
+  background: #eee;
+  border:1px solid #ddd;
+}
+.hourRemoval label:after {
+  opacity: 0.2;
+  content: '+';
+  position: absolute;
+  top: 0px;
+  left: 5px;
+  background
+  text-align: center;
+  line-height: 22.5px;
+  -color: transparent;
+  font-weight: bold;
+  font-family: Tahoma, Verdana, Segoe, sans-serif;    
+  font-size: 20px;
+  color: #333;
+}
+
+.hourRemoval label:hover::after {
+  opacity: 0.5;
+}
+.hourRemoval input[type=checkbox]:checked + label:after {
+  opacity: 1;
+}
+
+.overflow {
+  height: 100px;
+}
+</style> 
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html">
+<link rel="stylesheet" href="//code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+<script src="//code.jquery.com/jquery-1.10.2.js"></script>
+<script src="//code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+
+</head>
+
+<body>
+  <script>
+    $(function(){
+      $("#jobTarget").buttonset();
+      $("#jobTarget").find("label").unbind("mouseup");
+    });
+
+    $(function(){
+      $( "#dialog" ).dialog({ autoOpen: false,height:"auto",minWidth:900});
+      $( "#opener" ).click(function() {
+        $( "#dialog" ).dialog( "open" );
+      });
+    });    
+    
+    $(function(){
+      $("#tabs").tabs({heightStyle: "content",hide:100,show:100});
+      $(".tabHeader").click(function(event){
+        var selectedTab = event.target.href;
+        var tabName = selectedTab.split("#");
+        var target = "#" + tabName[1];
+        console.log( "#" + tabName[1]); 
+        $('.tab :input').not(target).prop("disabled",true);
+        $(target + " :input").prop("disabled",false);   
+      });
+    });
+    
+    $(function(){
+      $('#minutesSlider').slider({
+        max:60,
+        min:1,
+        value:30,
+        step:1,
+        animate:"fast",
+        slide: function(event,ui){
+          $("#minutesSliderValue").val(ui.value);
+        }
+      });
+      $("#minutesSliderValue").val($("#minutesSlider").slider("value"));
+    });
+
+    $(function(){
+      $('#hourlySlider').slider({
+        max:23,
+        min:1,
+        value:12,
+        step:1,
+        animate:"fast",
+        slide: function(event,ui){
+          $("#hourlySliderValue").val(ui.value);
+        }
+      });
+      $("#hourlySliderValue").val($("#hourlySlider").slider("value"));
+    });
+    
+    $(function(){
+      $('#hourlyRangeSlider').slider({
+        range:true,
+        min:0,
+        max:23,
+        step:1,
+        values:[12,16],
+        animate:"fast",
+        slide: function(event,ui){
+          var suffix0 = "", suffix1 = "";
+          if(ui.values[0] <= 12){
+              suffix0 = " am";
+          }if (ui.values[0] > 12){
+              suffix0 = " pm";
+          }if (ui.values[1] <= 12){
+              suffix1 = " am";
+          }else{
+              suffix1 = " pm";
+          }
+          $("#hourlyRangeSliderValue").val(ui.values[0] + suffix0 + " to " + ui.values[1] + suffix1);        
+        }
+      });
+      var sliderValues = $("#hourlyRangeSlider").slider("values");
+      var suffix0 = "", suffix1 = "";
+      if(sliderValues[0] <= 12){
+        suffix0 = " am";
+      }if (sliderValues[0] > 12){
+        suffix0 = " pm";
+      }if (sliderValues[1] <= 12){
+        suffix1 = " am";
+      }else{
+        suffix1 = " pm";
+      }
+      $("#hourlyRangeSliderValue").val(sliderValues[0] + suffix0 + " to " + sliderValues[1] + suffix1);
+      $("#hourlyRangeSliderFormValue").val(sliderValues);
+    });
+    /*
+    $(function(){
+      $(".sliderEnabler").change(function(event){
+        var target = "#" + event.target.value;
+        $('.internalHourSlider :input').not(target).prop("disabled",true);
+        $('.internalHourSlider').not(target).slider("disable");
+        $(target).slider( "enable" );
+        $(target + " :input").prop("disabled",false);
+      });
+    });
+    */
+    $(function(){
+      $('#dailySlider').slider({
+        max:7,
+        min:1,
+        value:3,
+        step:1,
+        animate:"fast",
+        slide: function(event,ui){
+          $("#dailySliderValue").val(ui.value);
+        }
+      });
+      $("#dailySliderValue").val($("#dailySlider").slider("value"));
+    });
+
+    $(function(){
+      $("#daysOfTheWeek").buttonset();
+      $("#daysOfTheWeek").find("label").unbind("mouseup");
+    });
+
+$(function(){
+  $("#jobCreator").submit(function(){
+    $(".sliderEnabler :input").prop("disabled", true);
+  });
+});
+
+$(document).ready(function () { 
+});
+
+</script>
+<div id="dialog" title="Create new job">
+  <div id='limit'>
+    <form id="jobCreator" action="/newJob" method="POST">
+
+      <div class="option" id ="backupTarget">   
+        <!-- target buttonset -->
+        <p>
+          <label class="elementLabel" for="buttonSet">Job target</label>
+        </p>   
+        <div class="buttonSet" id="jobTarget">
+          <!-- world button -->
+          <input type = "radio" id="jobTargetWorld" value = "world" name = "jobTarget">
+          <label for ="jobTargetWorld">App</label>
+          <!-- database button -->
+          <input type = "radio" id="jobTargetDatabase" value = "database" name = "jobTarget">
+          <label for ="jobTargetDatabase">Database</label>
+        </div>
+      </div>
+
+      <p>
+        <!-- tabs area -->
+        <div id="tabs">
+          <!-- tabs headers -->
+          <ul>
+            <li class="tabHeader"><a href="#minutes-tab">Minutes</a></li>
+            <li class="tabHeader"><a href="#hourly-tab">Hourly</a></li>
+            <li class="tabHeader"><a href="#daily-tab">Daily</a></li>
+            <li class="tabHeader"><a href="#weekly-tab">Weekly</a></li>
+            <li class="tabHeader"><a href="#monthly-tab">Monthly</a></li>
+          </ul>
+          <!-- minutes area -->
+          <div class ="tab" id="minutes-tab">
+                <label for="minutesSliderValue">
+                Run every: <input id="minutesSliderValue" name="minute" readonly style="border:0;width:22px;"> minute(s)
+                </label>
+                <p>
+                  <div class="internalSlider" id="minutesSlider"></div>
+                </p>
+          </div>
+
+          <!-- hourly area -->
+          <div class="tab" id="hourly-tab">
+            <!--hourly method selector wrapper-->
+            <div id="hourWrapper">
+              <!-- hourly normal slider -->
+                <label for="hourlySliderValue">
+                Run every: <input id="hourlySliderValue" name="hour" readonly style="border:0;width:22px;"> hour(s)
+                </label>
+                <p>
+                  <div class="internalSlider" id="hourlySlider"></div>
+                </p>
+                <!-- hourly slider enabler-->
+                <div class="sliderEnabler">
+                <!--
+                  <input type="radio" id="hourSliderEnabler" value="hourlySlider" name="hourlySliderEnabler" checked="checked"/>
+                  <label for="hourSliderEnabler"></label>
+                <input type="radio" id="hourlyNormalSliderEnabler" value="hourlyNormalSlider" name="hourlySliderEnabler" checked/>
+                 -->
+              </div> 
+            </p>
+            <!-- hourly range slider -->
+                <label for="hourlyRangeSliderValue">Run from:</label>
+                <input id="hourlyRangeSliderValue" readonly style="border:0">
+                <p>
+                  <div class="internalSlider" id="hourlyRangeSlider">
+                    <input id="hourlyRangeSliderFormValue" name="hour" style="display:none">
+                  </div>
+                </p>
+              <!-- hourly slider enabler-->
+              <div class="sliderEnabler">
+                  <!--
+                  <input type="radio" id="hourRangeSliderEnabler" value="hourRange" name="hourlySliderEnabler" />
+                  <label for="hourRangeSliderEnabler"></label>
+                -->
+                <input type="radio" id="hourlyRangeSliderEnabler" value="hourlyRangeSlider" name="hourlySliderEnabler"/>
+              </div> 
+            </p>
+          </div>
+
+          <!-- hourly minute selector -->
+          <label for="hourlyMinuteSelector">Select a minute:</label>
+          <select name="hourlyMinute" id="hourlyMinuteSelector">
+            <option value="0">00</option> 
+            <option value="5">05</option>  
+            <option value="10">10</option>   
+            <option value="15">15</option>   
+            <option value="20">20</option>              
+            <option value="25">25</option>
+            <option value="30" selected>30</option>           
+            <option value="35">35</option>             
+            <option value="40">40</option>           
+            <option value="45">45</option>  
+            <option value="50">50</option>             
+            <option value="55">55</option>          
+          </select>
+        </div>
+        <!--daily tab-->
+        <div class="tab" id="daily-tab">
+          <!-- daily normal slider -->
+          <label for="dailySliderValue">
+          Run every: <input id="dailySliderValue" name="day" readonly style="border:0;width:10px;"> days
+          </label>
+          <p>
+            <div class="internalSlider" id="dailySlider"></div>
+          </p>
+
+          <!-- daily minute selector -->
+          <label for="dailyHourSelector">Job time:</label>
+          <select name="dailyHour" id="dailyHourSelector">
+            <option value="0">00</option> 
+            <option value="1">01</option>
+            <option value="2">02</option>
+            <option value="3">03</option>
+            <option value="4">04</option>
+            <option value="5">05</option>
+            <option value="6">06</option>
+            <option value="7">07</option>
+            <option value="8">08</option>
+            <option value="9">09</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12" selected>12</option>
+            <option value="13">13</option>
+            <option value="14">14</option>
+            <option value="15">15</option>
+            <option value="16">16</option>
+            <option value="17">17</option>
+            <option value="18">18</option>
+            <option value="19">19</option>
+            <option value="20">20</option>
+            <option value="21">21</option>
+            <option value="22">22</option>
+            <option value="23">23</option>         
+          </select>
+          <select name="dailyMinute" id="dailyMinuteSelector">
+            <option value="0">00</option> 
+            <option value="5">05</option>  
+            <option value="10">10</option>   
+            <option value="15">15</option>   
+            <option value="20">20</option>              
+            <option value="25">25</option>
+            <option value="30" selected>30</option>           
+            <option value="35">35</option>             
+            <option value="40">40</option>           
+            <option value="45">45</option>  
+            <option value="50">50</option>             
+            <option value="55">55</option>          
+          </select>
+        </div>
+        <!--weekly tab-->
+        <div class="tab" id="weekly-tab">
+          <label class="elementLabel" for="buttonSet">Days on which the task will run:</label>
+          <p>
+            <div class="buttonSet" id="daysOfTheWeek">
+              <input type = "checkbox" id="dayMonday" value = "1" name = "day">
+              <label for ="dayMonday">Monday</label>
+
+              <input type = "checkbox" id="dayTuesday" value = "2" name = "day">
+              <label for ="dayTuesday">Tuesday</label>             
+
+              <input type = "checkbox" id="dayWednesday" value = "3" name = "day">
+              <label for ="dayWednesday">Wednesday</label>   
+
+              <input type = "checkbox" id="dayThursday" value = "4" name = "day">
+              <label for ="dayThursday">Thursday</label>   
+
+              <input type = "checkbox" id="dayFriday" value = "5" name = "day">
+              <label for ="dayFriday">Friday</label>   
+
+              <input type = "checkbox" id="daySaturday" value = "6" name = "day">
+              <label for ="daySaturday">Saturday</label>   
+
+              <input type = "checkbox" id="daySunday" value = "0" name = "day">
+              <label for ="daySunday">Sunday</label>   
+            </div>            
+          </p>
+
+          <label for="weeklyHourSelector">Job time:</label>
+          <select name="weeklyHour" id="weeklyHourSelector">
+            <option value="0">00</option> 
+            <option value="1">01</option>
+            <option value="2">02</option>
+            <option value="3">03</option>
+            <option value="4">04</option>
+            <option value="5">05</option>
+            <option value="6">06</option>
+            <option value="7">07</option>
+            <option value="8">08</option>
+            <option value="9">09</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12" selected>12</option>
+            <option value="13">13</option>
+            <option value="14">14</option>
+            <option value="15">15</option>
+            <option value="16">16</option>
+            <option value="17">17</option>
+            <option value="18">18</option>
+            <option value="19">19</option>
+            <option value="20">20</option>
+            <option value="21">21</option>
+            <option value="22">22</option>
+            <option value="23">23</option>         
+          </select>
+
+          <select name="weeklyMinute" id="weeklyMinuteSelector">
+            <option value="0">00</option> 
+            <option value="5">05</option>  
+            <option value="10">10</option>   
+            <option value="15">15</option>   
+            <option value="20">20</option>              
+            <option value="25">25</option>
+            <option value="30" selected>30</option>           
+            <option value="35">35</option>             
+            <option value="40">40</option>           
+            <option value="45">45</option>  
+            <option value="50">50</option>             
+            <option value="55">55</option>          
+          </select>
+
+        </div>
+
+        <div class"tab" id="monthly-tab">
+          ///////////////////////////////
+        </div>
+      </div>
+    </p>
+  </div>
+
+  <p>
+    <input type="submit" value="Done" />
+  </p>
+</form>
+
+</div>
+
+<button id="opener">Create new job</button>
+
+</body>
+</html>
